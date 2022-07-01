@@ -1,0 +1,60 @@
+package ru.practicum.shareit.user;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import ru.practicum.shareit.user.repository.UserRepository;
+
+import javax.validation.ValidationException;
+import java.util.Collection;
+import java.util.Optional;
+
+import static java.util.Optional.of;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+
+    private UserRepository userRepository;
+
+    @Override
+    public Collection<User> getUsers() {
+        return userRepository.getUsers();
+    }
+
+    @Override
+    public User saveUser(User user) {
+        if (validateEmailNotDuplicated(user)) {
+            userRepository.addUser(user);
+            log.info("User has been saved");
+        }
+        return user;
+    }
+
+    @Override
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findUserById(userId);
+    }
+
+    @Override
+    public Optional<User> updateUser(Long id, User user) {
+        return of(userRepository.updateUser(id, userRepository.findUserById(id).get()));
+    }
+
+    @Override
+    public boolean deleteUser(Long userId) {
+        return userRepository.deleteUser(userId);
+    }
+
+    private boolean validateEmailNotDuplicated(User user) {
+        for (User u : userRepository.getUsers()) {
+            if (u.getEmail().equals(user.getEmail())) {
+                log.warn("Duplicated email");
+                throw new ValidationException(String.format("Пользователь с электронной почтой %s" +
+                        " уже зарегистрирован.", user.getEmail()));
+            }
+        }
+        return true;
+    }
+}

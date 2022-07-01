@@ -10,12 +10,9 @@ import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.*;
 
-/**
- * // TODO .
- */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/requests")
+@RequestMapping(path = "/users")
 @Slf4j
 public class UserController {
     private final UserService userService;
@@ -39,6 +36,16 @@ public class UserController {
             log.warn("пользователь с id {} не найден для обновления", user.getId());
             throw new ResponseStatusException(BAD_REQUEST);
         });
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(OK)
+    public User findUserById(@PathVariable Long id) {
+        return userService.getUserById(id)
+                .orElseThrow(() -> {
+                    log.warn("пользователь с id {} не найден", id);
+                    throw new ResponseStatusException(NOT_FOUND);
+                });
     }
 
     @DeleteMapping("/{id}")

@@ -1,8 +1,10 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item;
 
 import lombok.Data;
 import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.user.User;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  класс с описанием вещи для шеринга - Item
@@ -12,6 +14,7 @@ public class Item {
     /** уникальный идентификатор вещи */
     private Long id;
     /** краткое название */
+    @NotBlank
     private String name;
     /** развёрнутое описание */
     private String description;

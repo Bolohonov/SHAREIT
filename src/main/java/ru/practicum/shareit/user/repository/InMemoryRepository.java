@@ -1,10 +1,12 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.repository;
+
+import ru.practicum.shareit.user.User;
 
 import java.util.*;
 
 import static java.util.Optional.of;
 
-public class UserInMemoryRepository implements UserRepository{
+public class InMemoryRepository implements UserRepository{
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
