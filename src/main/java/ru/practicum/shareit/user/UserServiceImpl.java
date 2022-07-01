@@ -16,7 +16,7 @@ import static java.util.Optional.of;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Collection<User> getUsers() {

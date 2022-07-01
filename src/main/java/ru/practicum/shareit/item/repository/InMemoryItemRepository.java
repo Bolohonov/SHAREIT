@@ -1,13 +1,14 @@
 package ru.practicum.shareit.item.repository;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.Item;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static java.util.Optional.of;
-
-public class InMemoryRepository implements ItemRepository {
+@Component
+@RequiredArgsConstructor
+public class InMemoryItemRepository implements ItemRepository {
     private final Map<Long, List<Item>> items = new HashMap<>();
 
     @Override

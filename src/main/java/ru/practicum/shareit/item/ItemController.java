@@ -24,14 +24,14 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public ItemDto saveNewItem(@RequestHeader("X-Later-User-Id") Long userId,
+    public ItemDto saveNewItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                             @Valid @RequestBody Item item) {
         return itemService.addNewItem(userId, item);
     }
 
     @PutMapping
     @ResponseStatus(OK)
-    public ItemDto updateItem(@RequestHeader("X-Later-User-Id") Long userId,
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @Valid @RequestBody Item item) {
         if (userId != item.getOwner().getId()) {
             throw new ResponseStatusException(BAD_REQUEST);
@@ -54,13 +54,13 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(OK)
-    public Collection<ItemDto> findAllItemsOfUser(@RequestHeader("X-Later-User-Id") Long userId) {
+    public Collection<ItemDto> findAllItemsOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemService.getUserItems(userId);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(NO_CONTENT)
-    public void deleteItem(@RequestHeader("X-Later-User-Id") Long userId,
+    public void deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @PathVariable Long id) {
         if (!itemService.deleteItem(userId,id)) {
             log.warn("режиссер с id {} не найден для удаления", id);

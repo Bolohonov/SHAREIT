@@ -1,5 +1,6 @@
 package ru.practicum.shareit.requests.dto;
 
+import lombok.Data;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 /**
  * // TODO .
  */
+@Data
 public class ItemRequestDto {
     /** уникальный идентификатор запроса */
     private Long id;

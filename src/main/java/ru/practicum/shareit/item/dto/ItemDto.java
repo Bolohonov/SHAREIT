@@ -1,13 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.requests.ItemRequest;
-import ru.practicum.shareit.user.User;
 
 /**
  * // TODO .
  */
+@Data
 public class ItemDto {
     /** уникальный идентификатор вещи */
     private Long id;
@@ -20,23 +18,12 @@ public class ItemDto {
     /**  если вещь была создана по запросу другого пользователя,
      * то в этом поле будет храниться ссылка на соответствующий запрос
      */
-    private ItemRequest request;
+    private Long request;
 
-    public ItemDto(String name, String description, boolean available, Long requestId) {
+    public ItemDto(String name, String description, boolean available, Long request) {
         this.name = name;
         this.description = description;
         this.available = available;
-        this.request = new ItemRequest(requestId);
-    }
-
-    static class ItemRequest {
-        /** уникальный идентификатор запроса */
-        private Long id;
-        /** текст запроса, содержащий описание требуемой вещи */
-        private String description;
-
-        public ItemRequest(Long requestId) {
-            this.id = requestId;
-        }
+        this.request = request;
     }
 }

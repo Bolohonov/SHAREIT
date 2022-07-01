@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.Data;
 import ru.practicum.shareit.booking.Status;
 
 import java.time.LocalDate;
@@ -7,6 +8,7 @@ import java.time.LocalDate;
 /**
  BookingDto //
  */
+@Data
 public class BookingDto {
     /** уникальный идентификатор бронирования */
     private Long id;

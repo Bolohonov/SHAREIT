@@ -17,5 +17,6 @@ public class User {
     private String name;
     /** адрес электронной почты */
     @Email
+    @NotBlank
     private String email;
 }
