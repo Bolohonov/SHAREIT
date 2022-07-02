@@ -6,31 +6,43 @@ import ru.practicum.shareit.booking.Status;
 import java.time.LocalDate;
 
 /**
- BookingDto //
+ * BookingDto //
  */
 @Data
 public class BookingDto {
-    /** дата начала бронирования */
+    /**
+     * дата начала бронирования
+     */
     private LocalDate start;
-    /** дата конца бронирования */
+    /**
+     * дата конца бронирования
+     */
     private LocalDate end;
-    /** вещь, которую пользователь бронирует */
+    /**
+     * вещь, которую пользователь бронирует
+     */
     private Item item;
-    /** статус бронирования */
+    /**
+     * статус бронирования
+     */
     private Status status;
 
     public BookingDto(LocalDate start, LocalDate end,
                       Long itemId, Status status) {
         this.start = start;
         this.end = end;
-        this.item = new Item (itemId);
-
+        this.item = new Item(itemId);
+        this.status = status;
     }
 
     static class Item {
-        /** уникальный идентификатор вещи */
+        /**
+         * уникальный идентификатор вещи
+         */
         private Long id;
-        /** краткое название */
+        /**
+         * краткое название
+         */
         private String name;
 
         public Item(Long itemId) {

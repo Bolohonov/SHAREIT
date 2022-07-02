@@ -10,7 +10,7 @@ import static java.util.Optional.of;
 
 @Component
 @RequiredArgsConstructor
-public class InMemoryUserRepository implements UserRepository{
+public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private Long id = 0L;
 

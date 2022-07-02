@@ -25,7 +25,6 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto addNewItem(Long userId, Item item) {
         item.setOwner(userService.getUserById(userId).get());
         return itemMapper.toItemDto(itemRepository.addItem(userId, item));
-
     }
 
     @Override
@@ -38,7 +37,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<ItemDto> findItemById(Long itemId){
+    public Optional<ItemDto> findItemById(Long itemId) {
         return of(itemMapper.toItemDto(itemRepository.findItemById(itemId).orElseThrow()));
     }
 
