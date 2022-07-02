@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.exceptions.AccessToItemException;
 
 import java.util.*;
 
@@ -16,7 +15,7 @@ public class InMemoryItemRepository implements ItemRepository {
     public Item addItem(Long userId, Item item) {
         item.setId(getId());
         items.compute(userId, (id, userItems) -> {
-            if(userItems == null) {
+            if (userItems == null) {
                 userItems = new ArrayList<>();
             }
             userItems.add(item);

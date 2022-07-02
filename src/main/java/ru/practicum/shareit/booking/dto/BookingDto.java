@@ -10,8 +10,6 @@ import java.time.LocalDate;
  */
 @Data
 public class BookingDto {
-    /** уникальный идентификатор бронирования */
-    private Long id;
     /** дата начала бронирования */
     private LocalDate start;
     /** дата конца бронирования */

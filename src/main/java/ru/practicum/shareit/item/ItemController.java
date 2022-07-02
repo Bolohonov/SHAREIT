@@ -5,16 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.User;
 
 import javax.validation.Valid;
 import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.*;
 
-/**
- * // TODO .
- */
 @RestController
 @RequiredArgsConstructor
 @Slf4j

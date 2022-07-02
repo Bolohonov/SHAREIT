@@ -6,16 +6,22 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 /**
- класс с описанием пользователя - User //
+ * класс с описанием пользователя - User //
  */
 @Data
 public class User {
-    /** уникальный идентификатор пользователя */
+    /**
+     * уникальный идентификатор пользователя
+     */
     private Long id;
-    /** имя или логин пользователя */
+    /**
+     * имя или логин пользователя
+     */
     @NotBlank
     private String name;
-    /** адрес электронной почты */
+    /**
+     * адрес электронной почты
+     */
     @Email
     @NotBlank
     private String email;
