@@ -25,11 +25,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
-        if (validateEmailNotDuplicated(user)) {
-            userRepository.addUser(user);
-            log.info("User has been saved");
-        }
-        return user;
+        validateEmailNotDuplicated(user);
+        return userRepository.addUser(user);
     }
 
     @Override
@@ -39,22 +36,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> updateUser(Long id, User user) {
-        return of(userRepository.updateUser(id, userRepository.findUserById(id).get()));
+        validateEmailNotDuplicated(user);
+        if (userRepository.findUserById(id).isPresent()) {
+            return of(userRepository.updateUser(id, this.compareToUpdate(id, user)));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public boolean deleteUser(Long userId) {
-        return userRepository.deleteUser(userId);
+    public void deleteUser(Long userId) {
+        userRepository.deleteUser(userId);
     }
 
-    private boolean validateEmailNotDuplicated(User user) {
+    private void validateEmailNotDuplicated(User user) {
         for (User u : userRepository.getUsers()) {
-            if (u.getEmail().equals(user.getEmail())) {
+            if (u.getEmail().equals(user.getEmail()) && u.getId() != user.getId()) {
                 log.warn("Duplicated email");
                 throw new ValidationException(String.format("Пользователь с электронной почтой %s" +
                         " уже зарегистрирован.", user.getEmail()));
             }
         }
-        return true;
+    }
+
+    private User compareToUpdate(Long id, User user) {
+        if (userRepository.findUserById(id).isPresent()) {
+            User oldUser = userRepository.findUserById(id).get();
+            if (user.getName() == null) {
+                user.setName(oldUser.getName());
+            }
+            if (user.getEmail() == null) {
+                user.setEmail(oldUser.getEmail());
+            }
+        }
+        return user;
     }
 }

@@ -31,10 +31,10 @@ public class UserController {
 
     @PutMapping
     @ResponseStatus(OK)
-    public User updateUser(@Valid @RequestBody User user) {
+    public User updateUser(@RequestBody User user) {
         return userService.updateUser(user.getId(), user).orElseThrow(() -> {
-            log.warn("пользователь с id {} не найден для обновления", user.getId());
-            throw new ResponseStatusException(BAD_REQUEST);
+            log.warn("пользователь с id {} не найден", user.getId());
+            throw new ResponseStatusException(NOT_FOUND);
         });
     }
 
@@ -51,9 +51,6 @@ public class UserController {
     @DeleteMapping("/{id}")
     @ResponseStatus(NO_CONTENT)
     public void deleteUser(@PathVariable Long id) {
-        if (!userService.deleteUser(id)) {
-            log.warn("режиссер с id {} не найден для удаления", id);
-            throw new ResponseStatusException(BAD_REQUEST);
-        }
+        userService.deleteUser(id);
     }
 }

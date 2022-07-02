@@ -13,5 +13,8 @@ public interface ItemRepository {
     Optional<Item> findItemById(Long id);
 
     Collection<Item> findUserItems(Long userId);
+
     void deleteItem(Long userId, Long itemId);
+
+    Collection<Item> searchItems(String text);
 }

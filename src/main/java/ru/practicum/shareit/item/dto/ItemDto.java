@@ -7,8 +7,6 @@ import lombok.Data;
  */
 @Data
 public class ItemDto {
-    /** уникальный идентификатор вещи */
-    private Long id;
     /** краткое название */
     private String name;
     /** развёрнутое описание */

@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.*;
 
@@ -12,6 +13,7 @@ import static java.util.Optional.of;
 @RequiredArgsConstructor
 public class InMemoryUserRepository implements UserRepository{
     private final Map<Long, User> users = new HashMap<>();
+    private Long id = 0L;
 
     @Override
     public Collection<User> getUsers() {
@@ -20,23 +22,23 @@ public class InMemoryUserRepository implements UserRepository{
 
     @Override
     public User addUser(User user) {
-        user.setId(getId());
+        user.setId(appointId());
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public boolean deleteUser(Long id) {
+    public void deleteUser(Long id) {
         if (!users.containsKey(id)) {
-            return false;
+            throw new UserNotFoundException("Пользователь с ID не найден");
         }
         users.remove(id);
-        return true;
     }
 
     @Override
     public User updateUser(Long id, User user) {
-        return users.put(id, user);
+        users.put(id, user);
+        return users.get(id);
     }
 
     @Override
@@ -44,12 +46,8 @@ public class InMemoryUserRepository implements UserRepository{
         return of(users.get(id));
     }
 
-    private long getId() {
-        long lastId = users.values()
-                .stream()
-                .mapToLong(User::getId)
-                .max()
-                .orElse(0);
-        return lastId + 1;
+    private Long appointId() {
+        ++id;
+        return id;
     }
 }

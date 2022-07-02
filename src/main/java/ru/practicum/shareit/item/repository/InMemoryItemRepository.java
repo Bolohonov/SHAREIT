@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.exceptions.AccessToItemException;
 
 import java.util.*;
 
@@ -28,14 +29,14 @@ public class InMemoryItemRepository implements ItemRepository {
     public Item updateItem(Long userId, Item item) {
         items.compute(userId, (id, userItems) -> {
             for (Item i : userItems) {
-                if (compareItemsByIdOwnerRequest(item, i)) {
+                if (compareItemsByIdOwner(item, i)) {
                     userItems.remove(i);
                     userItems.add(item);
                 }
             }
             return userItems;
         });
-        return item;
+        return items.get(userId).stream().filter(p -> p.getId() == item.getId()).findFirst().get();
     }
 
     @Override
@@ -57,6 +58,19 @@ public class InMemoryItemRepository implements ItemRepository {
         items.get(userId).remove(this.findItemById(id));
     }
 
+    @Override
+    public Collection<Item> searchItems(String text) {
+        Collection<Item> itemsOfSearch = new HashSet<>();
+        for (List<Item> itemList : items.values()) {
+            for (Item i : itemList) {
+                if (i.getName().contains("%text%") || i.getDescription().contains("%text%")) {
+                    itemsOfSearch.add(i);
+                }
+            }
+        }
+        return itemsOfSearch;
+    }
+
     private long getId() {
         long lastId = items.values()
                 .stream()
@@ -67,10 +81,9 @@ public class InMemoryItemRepository implements ItemRepository {
         return lastId + 1;
     }
 
-    private boolean compareItemsByIdOwnerRequest(Item firstItem, Item secondItem) {
+    private boolean compareItemsByIdOwner(Item firstItem, Item secondItem) {
         if (firstItem.getId() == secondItem.getId()
-                && firstItem.getOwner() == secondItem.getOwner()
-                && firstItem.getRequest() == secondItem.getRequest()) {
+                && firstItem.getOwner() == secondItem.getOwner()) {
             return true;
         } else {
             return false;

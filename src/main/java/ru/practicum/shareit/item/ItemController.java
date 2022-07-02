@@ -25,17 +25,14 @@ public class ItemController {
     @PostMapping
     @ResponseStatus(CREATED)
     public ItemDto saveNewItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                            @Valid @RequestBody Item item) {
+                               @Valid @RequestBody Item item) {
         return itemService.addNewItem(userId, item);
     }
 
     @PutMapping
     @ResponseStatus(OK)
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                           @Valid @RequestBody Item item) {
-        if (userId != item.getOwner().getId()) {
-            throw new ResponseStatusException(BAD_REQUEST);
-        }
+                              @Valid @RequestBody Item item) {
         return itemService.updateItem(userId, item).orElseThrow(() -> {
             log.warn("пользователь с id {} не найден для обновления", userId);
             throw new ResponseStatusException(BAD_REQUEST);
@@ -58,11 +55,16 @@ public class ItemController {
         return itemService.getUserItems(userId);
     }
 
+    @GetMapping("/search")
+    public Collection<ItemDto> search(@RequestParam(value = "text") String text) {
+        return itemService.search(text);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(NO_CONTENT)
     public void deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @PathVariable Long id) {
-        if (!itemService.deleteItem(userId,id)) {
+        if (!itemService.deleteItem(userId, id)) {
             log.warn("режиссер с id {} не найден для удаления", id);
             throw new ResponseStatusException(BAD_REQUEST);
         }
