@@ -49,8 +49,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(NO_CONTENT)
+    @ResponseStatus(OK)
     public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        if (!userService.deleteUser(id)) {
+            log.warn("режиссер с id {} не найден для удаления", id);
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
     }
 }

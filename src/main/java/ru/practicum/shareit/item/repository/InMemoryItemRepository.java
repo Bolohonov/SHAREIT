@@ -60,9 +60,11 @@ public class InMemoryItemRepository implements ItemRepository {
     @Override
     public Collection<Item> searchItems(String text) {
         Collection<Item> itemsOfSearch = new HashSet<>();
+        text = text.toLowerCase();
         for (List<Item> itemList : items.values()) {
             for (Item i : itemList) {
-                if (i.getName().contains("%text%") || i.getDescription().contains("%text%")) {
+                if (i.getName().toLowerCase().contains(text)
+                        || i.getDescription().toLowerCase().contains(text)) {
                     itemsOfSearch.add(i);
                 }
             }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.user.User;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotBlank;
  класс с описанием вещи для шеринга - Item
  */
 @Data
+@Builder
 public class Item {
     /** уникальный идентификатор вещи */
     private Long id;

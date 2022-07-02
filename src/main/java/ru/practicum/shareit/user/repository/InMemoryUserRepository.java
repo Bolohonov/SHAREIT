@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.*;
 
@@ -28,11 +27,12 @@ public class InMemoryUserRepository implements UserRepository{
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public boolean deleteUser(Long id) {
         if (!users.containsKey(id)) {
-            throw new UserNotFoundException("Пользователь с ID не найден");
+            return false;
         }
         users.remove(id);
+        return true;
     }
 
     @Override

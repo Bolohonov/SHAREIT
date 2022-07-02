@@ -45,8 +45,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        userRepository.deleteUser(userId);
+    public boolean deleteUser(Long userId) {
+        return userRepository.deleteUser(userId);
     }
 
     private void validateEmailNotDuplicated(User user) {
