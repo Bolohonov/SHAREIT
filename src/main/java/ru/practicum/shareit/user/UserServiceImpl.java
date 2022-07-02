@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
     private void validateEmailNotDuplicated(User user) {
         for (User u : userRepository.getUsers()) {
-            if (u.getEmail().equals(user.getEmail()) && u.getId() != user.getId()) {
+            if (u.getEmail().equals(user.getEmail()) && !u.getId().equals(user.getId())) {
                 log.warn("Duplicated email");
                 throw new ValidationException(String.format("Пользователь с электронной почтой %s" +
                         " уже зарегистрирован.", user.getEmail()));

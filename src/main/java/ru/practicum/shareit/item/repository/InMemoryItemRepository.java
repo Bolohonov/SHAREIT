@@ -35,14 +35,14 @@ public class InMemoryItemRepository implements ItemRepository {
             }
             return userItems;
         });
-        return items.get(userId).stream().filter(p -> p.getId() == item.getId()).findFirst().get();
+        return items.get(userId).stream().filter(p -> p.getId().equals(item.getId())).findFirst().get();
     }
 
     @Override
     public Optional<Item> findItemById(Long id) {
         Optional<Item> item = Optional.empty();
         for (List<Item> i : items.values()) {
-            item = i.stream().filter(p -> p.getId() == id).findFirst();
+            item = i.stream().filter(p -> p.getId().equals(id)).findFirst();
         }
         return item;
     }
@@ -83,8 +83,8 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     private boolean compareItemsByIdOwner(Item firstItem, Item secondItem) {
-        if (firstItem.getId() == secondItem.getId()
-                && firstItem.getOwner() == secondItem.getOwner()) {
+        if (firstItem.getId().equals(secondItem.getId())
+                && firstItem.getOwner().equals(secondItem.getOwner())) {
             return true;
         } else {
             return false;

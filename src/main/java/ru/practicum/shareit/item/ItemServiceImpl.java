@@ -30,7 +30,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Optional<ItemDto> updateItem(Long userId, Item item) {
         Item oldItem = itemRepository.findItemById(item.getId()).get();
-        if (oldItem.getId() != item.getId()) {
+        if (oldItem.getId().equals(item.getId())) {
             throw new AccessToItemException("Доступ запрещен!");
         }
         return of(itemMapper.toItemDto(itemRepository.updateItem(userId, item)));
@@ -62,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public boolean deleteItem(Long userId, Long itemId) {
         if (itemRepository.findItemById(itemId).isEmpty()
-                || itemRepository.findItemById(itemId).get().getOwner().getId() != userId) {
+                || itemRepository.findItemById(itemId).get().getOwner().getId().equals(userId)) {
             return false;
         } else {
             itemRepository.deleteItem(userId, itemId);
