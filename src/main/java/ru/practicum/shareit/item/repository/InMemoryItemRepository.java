@@ -26,6 +26,7 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Item updateItem(Long userId, Item item) {
+        items.values().stream().forEach(System.out::println);
         items.compute(userId, (id, userItems) -> {
             for (Item i : userItems) {
                 if (compareItemsByIdOwner(item, i)) {

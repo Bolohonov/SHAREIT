@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.ArrayList;
@@ -30,9 +31,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Optional<ItemDto> updateItem(Long userId, Item item) {
         Item oldItem = itemRepository.findItemById(item.getId()).get();
-        if (oldItem.getId().equals(item.getId())) {
+        if (!oldItem.getOwner().getId().equals(userId)) {
             throw new AccessToItemException("Доступ запрещен!");
         }
+        item.setOwner(userService.getUserById(userId).get());
         return of(itemMapper.toItemDto(itemRepository.updateItem(userId, item)));
     }
 
