@@ -26,7 +26,6 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Item updateItem(Long userId, Item item) {
-        items.values().stream().forEach(System.out::println);
         items.compute(userId, (id, userItems) -> {
             for (Item i : userItems) {
                 if (compareItemsByIdOwner(item, i)) {
@@ -84,11 +83,7 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     private boolean compareItemsByIdOwner(Item firstItem, Item secondItem) {
-        if (firstItem.getId().equals(secondItem.getId())
-                && firstItem.getOwner().equals(secondItem.getOwner())) {
-            return true;
-        } else {
-            return false;
-        }
+        return firstItem.getId().equals(secondItem.getId())
+                && firstItem.getOwner().equals(secondItem.getOwner());
     }
 }

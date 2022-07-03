@@ -4,10 +4,6 @@ import lombok.Data;
 import ru.practicum.shareit.booking.Status;
 
 import java.time.LocalDate;
-
-/**
- * BookingDto //
- */
 @Data
 public class BookingDto {
     /**
