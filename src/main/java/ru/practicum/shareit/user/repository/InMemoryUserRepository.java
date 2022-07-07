@@ -8,8 +8,6 @@ import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.*;
 
-import static java.util.Optional.of;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j

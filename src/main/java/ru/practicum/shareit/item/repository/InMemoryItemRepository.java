@@ -65,7 +65,7 @@ public class InMemoryItemRepository implements ItemRepository {
             for (Item i : itemList) {
                 if ((i.getName().toLowerCase().contains(text)
                         || i.getDescription().toLowerCase().contains(text)
-                        && (i.getOwner().getId().equals(userId) || i.isAvailable())) ) {
+                        && (i.getOwner().getId().equals(userId) || i.isAvailable()))) {
                     itemsOfSearch.add(i);
                 }
             }

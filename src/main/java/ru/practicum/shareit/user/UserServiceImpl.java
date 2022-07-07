@@ -3,17 +3,14 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.exceptions.ValidationEmailDuplicated;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.validation.ValidationException;
 import java.util.Collection;
 import java.util.Optional;
 
 import static java.util.Optional.of;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @Service

@@ -51,7 +51,7 @@ class InMemoryItemRepositoryTest {
         itemRepository.addItem(1L, item);
         itemRepository.addItem(1L, item2);
         itemRepository.addItem(1L, item3);
-        List<Item> list = itemRepository.searchItems("search").stream().collect(Collectors.toList());
+        List<Item> list = itemRepository.searchItems(1L,"search").stream().collect(Collectors.toList());
         assertThat(list.size() == 2);
         assertThat(list.get(0) == item3);
         assertThat(list.get(1) == item);
