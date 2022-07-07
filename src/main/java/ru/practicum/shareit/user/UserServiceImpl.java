@@ -3,6 +3,9 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
+import ru.practicum.shareit.user.exceptions.ValidationEmailDuplicated;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
@@ -10,6 +13,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static java.util.Optional.of;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @Service
@@ -31,7 +35,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> getUserById(Long userId) {
-        return userRepository.findUserById(userId);
+        if (userRepository.findUserById(userId).isPresent()) {
+            return userRepository.findUserById(userId);
+        } else {
+            log.warn("пользователь с id {} не найден", userId);
+            throw new UserNotFoundException("Пользователь не найден");
+        }
     }
 
     @Override
@@ -53,7 +62,7 @@ public class UserServiceImpl implements UserService {
         for (User u : userRepository.getUsers()) {
             if (u.getEmail().equals(user.getEmail()) && !u.getId().equals(user.getId())) {
                 log.warn("Duplicated email");
-                throw new ValidationException(String.format("Пользователь с электронной почтой %s" +
+                throw new ValidationEmailDuplicated(String.format("Пользователь с электронной почтой %s" +
                         " уже зарегистрирован.", user.getEmail()));
             }
         }
@@ -68,6 +77,7 @@ public class UserServiceImpl implements UserService {
             if (user.getEmail() == null) {
                 user.setEmail(oldUser.getEmail());
             }
+            user.setId(id);
         }
         return user;
     }

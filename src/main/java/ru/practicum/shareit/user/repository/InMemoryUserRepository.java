@@ -1,8 +1,10 @@
 package ru.practicum.shareit.user.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.*;
 
@@ -10,6 +12,7 @@ import static java.util.Optional.of;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private Long id = 0L;
@@ -43,7 +46,14 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findUserById(Long id) {
-        return of(users.get(id));
+        Optional<User> user;
+        try {
+            user = Optional.ofNullable(users.get(id));
+        } catch (Exception exp) {
+            log.warn("Пользователь с id {} не найден", id);
+            throw new UserNotFoundException(exp.getMessage());
+        }
+        return user;
     }
 
     private Long appointId() {

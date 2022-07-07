@@ -10,11 +10,13 @@ public interface ItemService {
 
     Optional<ItemDto> updateItem(Long userId, Item item);
 
+    Optional<ItemDto> patchedItem(Long userId, Long itemId, String item);
+
     Optional<ItemDto> findItemById(Long itemId);
 
     Collection<ItemDto> getUserItems(Long userId);
 
     boolean deleteItem(Long userId, Long itemId);
 
-    Collection<ItemDto> search(String text);
+    Collection<ItemDto> search(Long userId, String text);
 }

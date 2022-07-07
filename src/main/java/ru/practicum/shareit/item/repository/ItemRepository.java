@@ -16,5 +16,5 @@ public interface ItemRepository {
 
     void deleteItem(Long userId, Long itemId);
 
-    Collection<Item> searchItems(String text);
+    Collection<Item> searchItems(Long userId, String text);
 }

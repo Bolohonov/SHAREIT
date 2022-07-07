@@ -38,14 +38,19 @@ public class UserController {
         });
     }
 
+    @PatchMapping("/{id}")
+    @ResponseStatus(OK)
+    public User patchedUser(@PathVariable Long id, @RequestBody User user) {
+        return userService.updateUser(id, user).orElseThrow(() -> {
+            log.warn("пользователь с id {} не найден", user.getId());
+            throw new ResponseStatusException(NOT_FOUND);
+        });
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(OK)
     public User findUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .orElseThrow(() -> {
-                    log.warn("пользователь с id {} не найден", id);
-                    throw new ResponseStatusException(NOT_FOUND);
-                });
+        return userService.getUserById(id).get();
     }
 
     @DeleteMapping("/{id}")

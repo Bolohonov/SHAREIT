@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class ItemDto {
+    /** уникальный идентификатор вещи */
+    private Long id;
     /**
      * краткое название
      */
@@ -22,7 +24,8 @@ public class ItemDto {
      */
     private Long request;
 
-    public ItemDto(String name, String description, boolean available, Long request) {
+    public ItemDto(Long id, String name, String description, boolean available, Long request) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;

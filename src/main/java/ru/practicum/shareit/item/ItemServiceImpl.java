@@ -1,21 +1,28 @@
 package ru.practicum.shareit.item;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
+import ru.practicum.shareit.item.exceptions.ItemValidationException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
@@ -38,6 +45,37 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public Optional<ItemDto> patchedItem(Long userId, Long itemId, String json) {
+        Item item = itemRepository.findItemById(itemId).get();
+        JsonObject obj = new Gson().fromJson(json, JsonObject.class);
+        Optional<String> name = Optional.empty();
+        Optional<String> description = Optional.empty();
+        Optional<Boolean> available = Optional.empty();
+        if (!item.getOwner().getId().equals(userId)) {
+            throw new AccessToItemException("Доступ запрещен!");
+        }
+        try {
+            name = ofNullable(obj.get("name").getAsString());
+            item.setName(name.get());
+        } catch (NullPointerException e) {
+            log.info("Часть полей полученного объекта пустые");
+        }
+        try {
+            description = ofNullable(obj.get("description").getAsString());
+            item.setDescription(description.get());
+        } catch (NullPointerException e) {
+            log.info("Часть полей полученного объекта пустые");
+        }
+        try {
+            available = ofNullable(obj.get("available").getAsBoolean());
+            item.setAvailable(available.get());
+        } catch (NullPointerException e) {
+            log.info("Часть полей полученного объекта пустые");
+        }
+        return of(itemMapper.toItemDto(itemRepository.updateItem(userId, item)));
+    }
+
+    @Override
     public Optional<ItemDto> findItemById(Long itemId) {
         return of(itemMapper.toItemDto(itemRepository.findItemById(itemId).orElseThrow()));
     }
@@ -52,10 +90,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> search(String text) {
+    public Collection<ItemDto> search(Long userId, String text) {
         Collection<ItemDto> itemsDto = new ArrayList<>();
-        for (Item i : itemRepository.searchItems(text)) {
-            itemsDto.add(itemMapper.toItemDto(i));
+        if (!text.isEmpty()) {
+            for (Item i : itemRepository.searchItems(userId, text)) {
+                itemsDto.add(itemMapper.toItemDto(i));
+            }
+        } else {
+            return Collections.emptyList();
         }
         return itemsDto;
     }
@@ -68,6 +110,14 @@ public class ItemServiceImpl implements ItemService {
         } else {
             itemRepository.deleteItem(userId, itemId);
             return true;
+        }
+    }
+
+    private void validateItem(Item item) {
+        try {
+            item.isAvailable();
+        } catch (NullPointerException e) {
+            throw new ItemValidationException("Поле available отсутствуeт");
         }
     }
 }

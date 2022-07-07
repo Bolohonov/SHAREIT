@@ -2,9 +2,11 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.User;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -35,6 +37,16 @@ public class ItemController {
         });
     }
 
+    @PatchMapping("{id}")
+    @ResponseStatus(OK)
+    public ItemDto patchedItem(@PathVariable Long id, @RequestHeader("X-Sharer-User-Id") Long userId,
+                              @RequestBody String json) {
+        return itemService.patchedItem(userId, id, json).orElseThrow(() -> {
+            log.warn("пользователь с id {} не найден для обновления", userId);
+            throw new ResponseStatusException(BAD_REQUEST);
+        });
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(OK)
     public ItemDto findItemById(@PathVariable Long id) {
@@ -52,8 +64,9 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public Collection<ItemDto> search(@RequestParam(value = "text") String text) {
-        return itemService.search(text);
+    public Collection<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @RequestParam(value = "text") String text) {
+        return itemService.search(userId, text);
     }
 
     @DeleteMapping("/{id}")
