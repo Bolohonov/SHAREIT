@@ -48,9 +48,9 @@ public class ItemServiceImpl implements ItemService {
     public Optional<ItemDto> patchedItem(Long userId, Long itemId, String json) {
         Item item = itemRepository.findItemById(itemId).get();
         JsonObject obj = new Gson().fromJson(json, JsonObject.class);
-        Optional<String> name = Optional.empty();
-        Optional<String> description = Optional.empty();
-        Optional<Boolean> available = Optional.empty();
+        Optional<String> name;
+        Optional<String> description;
+        Optional<Boolean> available;
         if (!item.getOwner().getId().equals(userId)) {
             throw new AccessToItemException("Доступ запрещен!");
         }
@@ -110,14 +110,6 @@ public class ItemServiceImpl implements ItemService {
         } else {
             itemRepository.deleteItem(userId, itemId);
             return true;
-        }
-    }
-
-    private void validateItem(Item item) {
-        try {
-            item.isAvailable();
-        } catch (NullPointerException e) {
-            throw new ItemValidationException("Поле available отсутствуeт");
         }
     }
 }
