@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
+import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,28 +31,37 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addNewItem(Long userId, Item item) {
-        item.setOwner(userService.getUserById(userId).get());
-        return itemMapper.toItemDto(itemRepository.addItem(userId, item));
+        if (!userService.getUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+        item.setOwnerId(userId);
+        return itemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
     public Optional<ItemDto> updateItem(Long userId, Item item) {
-        Item oldItem = itemRepository.findItemById(item.getId()).get();
-        if (!oldItem.getOwner().getId().equals(userId)) {
+        Item oldItem = itemRepository.findById(item.getId()).orElseThrow(() -> {
+                    throw new UserNotFoundException("Пользователь не найден");
+                }
+        );
+        if (!oldItem.getOwnerId().equals(userId)) {
             throw new AccessToItemException("Доступ запрещен!");
         }
-        item.setOwner(userService.getUserById(userId).get());
-        return of(itemMapper.toItemDto(itemRepository.updateItem(userId, item)));
+        item.setOwnerId(userId);
+        return of(itemMapper.toItemDto(itemRepository.save(item)));
     }
 
     @Override
     public Optional<ItemDto> patchedItem(Long userId, Long itemId, String json) {
-        Item item = itemRepository.findItemById(itemId).get();
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> {
+                    throw new UserNotFoundException("Пользователь не найден");
+                }
+        );
         JsonObject obj = new Gson().fromJson(json, JsonObject.class);
         Optional<String> name;
         Optional<String> description;
         Optional<Boolean> available;
-        if (!item.getOwner().getId().equals(userId)) {
+        if (!item.getOwnerId().equals(userId)) {
             throw new AccessToItemException("Доступ запрещен!");
         }
         try {
@@ -71,18 +82,21 @@ public class ItemServiceImpl implements ItemService {
         } catch (NullPointerException e) {
             log.info("Часть полей полученного объекта пустые");
         }
-        return of(itemMapper.toItemDto(itemRepository.updateItem(userId, item)));
+        return of(itemMapper.toItemDto(itemRepository.save(item)));
     }
 
     @Override
     public Optional<ItemDto> findItemById(Long itemId) {
-        return of(itemMapper.toItemDto(itemRepository.findItemById(itemId).orElseThrow()));
+        return of(itemMapper.toItemDto(itemRepository.findById(itemId).orElseThrow(() -> {
+            throw new ItemNotFoundException("Вещь не найдена");
+                }
+        )));
     }
 
     @Override
     public Collection<ItemDto> getUserItems(Long userId) {
         Collection<ItemDto> itemsDto = new ArrayList<>();
-        for (Item i : itemRepository.findUserItems(userId)) {
+        for (Item i : itemRepository.findByOwnerId(userId)) {
             itemsDto.add(itemMapper.toItemDto(i));
         }
         return itemsDto;
@@ -103,11 +117,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public boolean deleteItem(Long userId, Long itemId) {
-        if (itemRepository.findItemById(itemId).isEmpty()
-                || itemRepository.findItemById(itemId).get().getOwner().getId().equals(userId)) {
+        if (itemRepository.findById(itemId).isEmpty()
+                || itemRepository.findById(itemId).get().getOwnerId().equals(userId)) {
             return false;
         } else {
-            itemRepository.deleteItem(userId, itemId);
+            itemRepository.deleteById(itemId);
             return true;
         }
     }

@@ -38,7 +38,7 @@ public class ItemController {
     @PatchMapping("{id}")
     @ResponseStatus(OK)
     public ItemDto patchedItem(@PathVariable Long id, @RequestHeader("X-Sharer-User-Id") Long userId,
-                              @RequestBody String json) {
+                               @RequestBody String json) {
         return itemService.patchedItem(userId, id, json).orElseThrow(() -> {
             log.warn("пользователь с id {} не найден для обновления", userId);
             throw new ResponseStatusException(BAD_REQUEST);

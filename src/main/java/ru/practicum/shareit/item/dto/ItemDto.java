@@ -17,14 +17,14 @@ public class ItemDto {
     /**
      * статус о том, доступна или нет вещь для аренды
      */
-    private boolean available;
+    private Boolean available;
     /**
      * если вещь была создана по запросу другого пользователя,
      * то в этом поле будет храниться ссылка на соответствующий запрос
      */
     private Long request;
 
-    public ItemDto(Long id, String name, String description, boolean available, Long request) {
+    public ItemDto(Long id, String name, String description, boolean available, Long requestId) {
         this.id = id;
         this.name = name;
         this.description = description;
