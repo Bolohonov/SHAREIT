@@ -9,13 +9,13 @@ import java.util.Optional;
 public interface BookingService {
     BookingDto addNew(Long userId, Booking booking);
 
-    Optional<BookingDto> update(Long userId, Booking booking);
+    Optional<BookingDto> approveOrRejectBooking(Long userId, Long bookingId, Boolean approved);
 
-    Optional<BookingDto> patched(Long userId, Long bookingId, String booking);
+    Optional<BookingDto> findBookingById(Long userId, Long bookingId);
 
-    Optional<BookingDto> findById(Long bookingId);
+    Collection<BookingDto> getUserBookings(Long userId, String state);
 
-    Collection<BookingDto> getUserBookings(Long userId);
+    Collection<BookingDto> getBookingsByOwner(Long userId, String state);
 
     boolean delete(Long userId, Long bookingId);
 }

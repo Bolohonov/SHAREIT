@@ -6,8 +6,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 
 import javax.validation.Valid;
+
+import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -31,11 +34,37 @@ public class BookingController {
 
     @PatchMapping("{bookingId}")
     @ResponseStatus(OK)
-    public BookingDto patchedBooking(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId,
-                               @RequestBody String json) {
-        return bookingService.patched(userId, bookingId, json).orElseThrow(() -> {
+    public BookingDto approveOrRejectBooking(@PathVariable Long bookingId,
+                                             @RequestHeader("X-Sharer-User-Id") Long userId,
+                                             @RequestParam Boolean approved) {
+        return bookingService.approveOrRejectBooking(userId, bookingId, approved).orElseThrow(() -> {
             log.warn("запрос с id {} не найден для обновления", bookingId);
             throw new ResponseStatusException(BAD_REQUEST);
         });
+    }
+
+    @GetMapping("/{bookingId}")
+    @ResponseStatus(OK)
+    public BookingDto findBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @PathVariable Long id) {
+        return bookingService.findBookingById(userId, id)
+                .orElseThrow(() -> {
+                    log.warn("предмет с id {} не найден", id);
+                    throw new ResponseStatusException(NOT_FOUND);
+                });
+    }
+
+    @GetMapping
+    @ResponseStatus(OK)
+    public Collection<BookingDto> findBookingByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                    @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getUserBookings(userId, state);
+    }
+
+    @GetMapping("/owner")
+    @ResponseStatus(OK)
+    public Collection<BookingDto> findBookingByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                     @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getBookingsByOwner(userId, state);
     }
 }

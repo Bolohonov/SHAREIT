@@ -18,7 +18,7 @@ public class BookingDto {
     /**
      * вещь, которую пользователь бронирует
      */
-    private Item item;
+    private Long itemId;
     /**
      * статус бронирования
      */
@@ -28,22 +28,7 @@ public class BookingDto {
                       Long itemId, Status status) {
         this.start = start;
         this.end = end;
-        this.item = new Item(itemId);
+        this.itemId = itemId;
         this.status = status;
-    }
-
-    static class Item {
-        /**
-         * уникальный идентификатор вещи
-         */
-        private Long id;
-        /**
-         * краткое название
-         */
-        private String name;
-
-        public Item(Long itemId) {
-            this.id = itemId;
-        }
     }
 }

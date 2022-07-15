@@ -125,4 +125,12 @@ public class ItemServiceImpl implements ItemService {
             return true;
         }
     }
+
+    @Override
+    public boolean checkOwner(Long userId, Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> {
+                    throw new ItemNotFoundException("Вещь не найдена");
+                }
+        ).getOwnerId().equals(userId);
+    }
 }

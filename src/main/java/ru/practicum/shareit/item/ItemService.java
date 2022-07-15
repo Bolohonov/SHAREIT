@@ -18,5 +18,7 @@ public interface ItemService {
 
     boolean deleteItem(Long userId, Long itemId);
 
+    boolean checkOwner(Long userId, Long itemId);
+
     Collection<ItemDto> search(Long userId, String text);
 }
