@@ -8,12 +8,16 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.exceptions.AccessToBookingException;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import static java.util.Optional.of;
@@ -76,7 +80,17 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Collection<BookingDto> getUserBookings(Long userId, String state) {
-        return null;
+        Collection<BookingDto> bookingsDto = new ArrayList<>();
+
+
+        if (!text.isEmpty()) {
+            for (Item i : itemRepository.searchItems(userId, text)) {
+                itemsDto.add(itemMapper.toItemDto(i));
+            }
+        } else {
+            return Collections.emptyList();
+        }
+        return itemsDto;
     }
 
     @Override
