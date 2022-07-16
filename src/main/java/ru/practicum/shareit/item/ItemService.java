@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -14,7 +15,7 @@ public interface ItemService {
 
     Optional<ItemDto> findItemById(Long itemId);
 
-    Collection<ItemDto> getUserItems(Long userId);
+    Collection<ItemDtoWithBooking> getUserItems(Long userId);
 
     boolean deleteItem(Long userId, Long itemId);
 

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -57,7 +58,7 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(OK)
-    public Collection<ItemDto> findAllItemsOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Collection<ItemDtoWithBooking> findAllItemsOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
         return itemService.getUserItems(userId);
     }
 

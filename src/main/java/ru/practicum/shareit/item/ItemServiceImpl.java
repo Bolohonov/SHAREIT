@@ -5,7 +5,10 @@ import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
@@ -13,10 +16,12 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -28,6 +33,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
     private final UserService userService;
+    private final BookingRepository bookingRepository;
 
     @Override
     public ItemDto addNewItem(Long userId, Item item) {
@@ -94,9 +100,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> getUserItems(Long userId) {
-        Collection<ItemDto> itemsDto = new ArrayList<>();
+    public Collection<ItemDtoWithBooking> getUserItems(Long userId) {
+        Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
         for (Item i : itemRepository.findByOwnerId(userId)) {
+            bookingRepository.findBookingByItemId(i.getId())
+                    .stream()
+                    .filter(b -> b.getEnd().isBefore(LocalDate.now()))
+                    .collect(Collectors.toList());
+
             itemsDto.add(itemMapper.toItemDto(i));
         }
         return itemsDto;
