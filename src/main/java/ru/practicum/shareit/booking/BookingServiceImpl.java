@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.of;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 @RequiredArgsConstructor
@@ -37,18 +39,17 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto addNew(Long userId, Booking booking) {
-        if (!userService.getUserById(userId).isPresent()) {
-            throw new UserNotFoundException("Пользователь не найден");
-        }
+        validateBooking(userId, booking);
         booking.setBookerId(userId);
         booking.setStatus(Status.WAITING);
-        return bookingMapper.toBookingDto(bookingRepository.save(booking));
+        return bookingMapper.toBookingDto(bookingRepository.save(booking),
+                itemService.findItemById(booking.getItemId()).get().getName());
     }
 
     @Override
     public Optional<BookingDto> approveOrRejectBooking(Long userId, Long bookingId, Boolean approved) {
         if (approved == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(BAD_REQUEST);
         }
         if (!userService.getUserById(userId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -64,7 +65,8 @@ public class BookingServiceImpl implements BookingService {
         } else {
             booking.setStatus(Status.REJECTED);
         }
-        return of(bookingMapper.toBookingDto(bookingRepository.save(booking)));
+        return of(bookingMapper.toBookingDto(bookingRepository.save(booking),
+                itemService.findItemById(booking.getItemId()).get().getName()));
     }
 
     @Override
@@ -79,7 +81,8 @@ public class BookingServiceImpl implements BookingService {
                 throw new AccessToBookingException("Доступ к бронированию для данного пользователя закрыт!");
             }
         }
-        return of(bookingMapper.toBookingDto(booking));
+        return of(bookingMapper.toBookingDto(booking,
+                itemService.findItemById(booking.getItemId()).get().getName()));
     }
 
     @Override
@@ -90,7 +93,8 @@ public class BookingServiceImpl implements BookingService {
                 bookingsDto = bookingRepository.findBookingByBookerId(userId,
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
-                        .map(b -> bookingMapper.toBookingDto(b))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case CURRENT:
@@ -98,7 +102,8 @@ public class BookingServiceImpl implements BookingService {
                                 LocalDate.now(ZoneId.of("GMT+03:00")),
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
-                        .map(b -> bookingMapper.toBookingDto(b))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case PAST:
@@ -106,7 +111,8 @@ public class BookingServiceImpl implements BookingService {
                                 LocalDate.now(ZoneId.of("GMT+03:00")),
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
-                        .map(b -> bookingMapper.toBookingDto(b))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
@@ -114,23 +120,28 @@ public class BookingServiceImpl implements BookingService {
                                 LocalDate.now(ZoneId.of("GMT+03:00")),
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
-                        .map(b -> bookingMapper.toBookingDto(b))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
-//            case WAITING:
-//                bookingsDto = bookingRepository.findBookingByBookerIdAndStatusWaiting(userId,
-//                                Sort.by(Sort.Direction.DESC, "start"))
-//                        .stream()
-//                        .map(b -> bookingMapper.toBookingDto(b))
-//                        .collect(Collectors.toList());
-//                break;
-//            case REJECTED:
-//                bookingsDto = bookingRepository.findBookingByBookerIdAndStatusRejected(userId,
-//                                Sort.by(Sort.Direction.DESC, "start"))
-//                        .stream()
-//                        .map(b -> bookingMapper.toBookingDto(b))
-//                        .collect(Collectors.toList());
-//                break;
+            case WAITING:
+                bookingsDto = bookingRepository.findBookingByBookerId(userId,
+                                Sort.by(Sort.Direction.DESC, "start"))
+                        .stream()
+                        .filter(b -> b.getStatus().equals(Status.WAITING))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
+                        .collect(Collectors.toList());
+                break;
+            case REJECTED:
+                bookingsDto = bookingRepository.findBookingByBookerId(userId,
+                                Sort.by(Sort.Direction.DESC, "start"))
+                        .stream()
+                        .filter(b -> b.getStatus().equals(Status.REJECTED))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
+                        .collect(Collectors.toList());
+                break;
         }
         return bookingsDto;
     }
@@ -141,42 +152,60 @@ public class BookingServiceImpl implements BookingService {
         Collection<Booking> bookings = Collections.emptyList();
         Collection<BookingDto> bookingsDto = Collections.emptyList();
         if (itemsOfUser.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(BAD_REQUEST);
         }
         for (ItemDtoWithBooking itemDto : itemsOfUser) {
             bookings.addAll(bookingRepository.findBookingByItemId(itemDto.getId()));
         }
         switch(state) {
             case ALL:
-                bookingsDto = bookings.stream().map(b -> bookingMapper.toBookingDto(b))
+                bookingsDto = bookings.stream().map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                     .collect(Collectors.toList());
                 break;
             case CURRENT:
-                bookingsDto = bookings.stream().filter((b) -> b.getEnd().isAfter(LocalDate.now()))
-                        .map(b -> bookingMapper.toBookingDto(b))
+                bookingsDto = bookings.stream().filter((b) -> b.getEnd().isAfter(LocalDateTime.now()))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case PAST:
-                bookingsDto = bookings.stream().filter((b) -> b.getEnd().isBefore(LocalDate.now()))
-                        .map(b -> bookingMapper.toBookingDto(b))
+                bookingsDto = bookings.stream().filter((b) -> b.getEnd().isBefore(LocalDateTime.now()))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
-                bookingsDto = bookings.stream().filter((b) -> b.getStart().isAfter(LocalDate.now()))
-                        .map(b -> bookingMapper.toBookingDto(b))
+                bookingsDto = bookings.stream().filter((b) -> b.getStart().isAfter(LocalDateTime.now()))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case WAITING:
                 bookingsDto = bookings.stream().filter((b) -> b.getStatus().equals(Status.WAITING))
-                        .map(b -> bookingMapper.toBookingDto(b))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case REJECTED:
                 bookingsDto = bookings.stream().filter((b) -> b.getStatus().equals(Status.REJECTED))
-                        .map(b -> bookingMapper.toBookingDto(b))
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId()).get().getName()))
                         .collect(Collectors.toList());
                 break;
         }
         return bookingsDto;
+    }
+
+    private void validateBooking(Long userId, Booking booking) {
+        if (!userService.getUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+        if (itemService.findItemById(booking.getItemId()).get().getAvailable().equals(Boolean.FALSE)) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
+        if (booking.getEnd().isBefore(LocalDateTime.now().minusSeconds(20))) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
     }
 }

@@ -2,9 +2,11 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.lang.Nullable;
 import ru.practicum.shareit.comment.Comment;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Data
@@ -32,11 +34,11 @@ public class ItemDtoWithBooking {
     /**
      * дата окончания последнего бронирования
      */
-    private LocalDate lastBookingDate;
+    private LocalDateTime lastBookingDate;
     /**
      * дата начала следующего бронирования
      */
-    private LocalDate nextBookingDate;
+    private LocalDateTime nextBookingDate;
     /**
      * комментарии по использования вещи
      */

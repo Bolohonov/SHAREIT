@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.dto.CommentDto;
@@ -21,7 +23,11 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static java.util.Optional.of;
@@ -110,20 +116,27 @@ public class ItemServiceImpl implements ItemService {
     public Collection<ItemDtoWithBooking> getUserItems(Long userId) {
         Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
         for (Item i : itemRepository.findByOwnerId(userId)) {
-            LocalDate last = bookingRepository.findBookingByItemId(i.getId())
-                    .stream()
-                    .filter(b -> b.getEnd().isAfter(LocalDate.now()))
-                    .sorted((o1, o2) -> (int) -(o1.getEnd().toEpochDay() - o2.getEnd().toEpochDay()))
-                    .findFirst()
-                    .get()
-                    .getEnd();
-            LocalDate next = bookingRepository.findBookingByItemId(i.getId())
-                    .stream()
-                    .filter(b -> b.getStart().isAfter(LocalDate.now()))
-                    .sorted((o1, o2) -> (int) -(o1.getStart().toEpochDay() - o2.getStart().toEpochDay()))
-                    .findFirst()
-                    .get()
-                    .getStart();
+            Collection<Booking> bookings = bookingRepository.findBookingByItemId(i.getId());
+            LocalDateTime last = null;
+            LocalDateTime next = null;
+            if (!bookings.isEmpty()) {
+                last = bookings
+                        .stream()
+                        .filter(b -> b.getEnd().isAfter(LocalDateTime.now()))
+                        .sorted((o1, o2) -> (int) -(o1.getEnd().toEpochSecond(ZoneOffset.UTC)
+                                - o2.getEnd().toEpochSecond(ZoneOffset.UTC)))
+                        .findFirst()
+                        .get()
+                        .getEnd();
+                next = bookings
+                        .stream()
+                        .filter(b -> b.getStart().isAfter(LocalDateTime.now()))
+                        .sorted((o1, o2) -> (int) -(o1.getStart().toEpochSecond(ZoneOffset.UTC)
+                                - o2.getStart().toEpochSecond(ZoneOffset.UTC)))
+                        .findFirst()
+                        .get()
+                        .getStart();
+            }
             itemsDto.add(itemMapper.toItemDtoWithBooking(i, last, next,
                     commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
         }
@@ -146,13 +159,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto addComment(Long userId, Long itemId, Comment comment) {
-        Optional<LocalDate> firstEndOfBookingDate = ofNullable(bookingRepository
+        Optional<LocalDateTime> firstEndOfBookingDate = ofNullable(bookingRepository
                 .findBookingByItemIdAndAndBookerId(itemId, userId,
                 Sort.by(Sort.Direction.ASC, "end"))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST)).getEnd());
-        if (firstEndOfBookingDate.isPresent() && firstEndOfBookingDate.get().isBefore(LocalDate.now())) {
+        if (firstEndOfBookingDate.isPresent() && firstEndOfBookingDate.get().isBefore(LocalDateTime.now())) {
             commentRepository.save(comment);
         }
         return commentMapper.toCommentDto(comment);

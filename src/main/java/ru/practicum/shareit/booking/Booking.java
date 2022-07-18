@@ -3,10 +3,9 @@ package ru.practicum.shareit.booking;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  класс с описанием бронирования вещи - Booking //
@@ -20,9 +19,11 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     /** дата начала бронирования */
-    private LocalDate start;
+    @Column(name = "start_date_time")
+    private LocalDateTime start;
     /** дата конца бронирования */
-    private LocalDate end;
+    @Column(name = "end_date_time")
+    private LocalDateTime end;
     /** вещь, которую пользователь бронирует */
     @Column(name = "item_id")
     private Long itemId;
@@ -31,5 +32,6 @@ public class Booking {
     private Long bookerId;
     /** статус бронирования */
     @Enumerated(EnumType.STRING)
+    @Column(name = "booking_status")
     private Status status;
 }

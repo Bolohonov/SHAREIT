@@ -1,34 +1,49 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.Data;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.*;
 import ru.practicum.shareit.booking.Status;
 
-import java.time.LocalDate;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
-public class BookingDto {
+@AllArgsConstructor
+@ToString
+//@JsonSerialize(using = BookingDtoSerializer.class)
+public class BookingDto implements Serializable {
+    /** уникальный идентификатор вещи */
+    private Long id;
     /**
      * дата начала бронирования
      */
-    private LocalDate start;
+    private LocalDateTime start;
     /**
      * дата конца бронирования
      */
-    private LocalDate end;
+    private LocalDateTime end;
     /**
      * вещь, которую пользователь бронирует
      */
-    private Long itemId;
+    private Item item;
+    /** пользователь, который осуществляет бронирование */
+    private Booker booker;
     /**
      * статус бронирования
      */
     private Status status;
 
-    public BookingDto(LocalDate start, LocalDate end,
-                      Long itemId, Status status) {
-        this.start = start;
-        this.end = end;
-        this.itemId = itemId;
-        this.status = status;
+    @AllArgsConstructor
+    @ToString @Getter @Setter
+    static class Booker implements Serializable {
+        private Long id;
+
+    }
+
+    @AllArgsConstructor
+    @ToString @Getter @Setter
+    static class Item implements Serializable {
+        private Long id;
+        private String name;
     }
 }

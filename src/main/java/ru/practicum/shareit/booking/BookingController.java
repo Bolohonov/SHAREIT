@@ -28,7 +28,7 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(CREATED)
     public BookingDto saveNewBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                  @Valid @RequestBody Booking booking) {
+                                     @RequestBody Booking booking) {
         return bookingService.addNew(userId, booking);
     }
 

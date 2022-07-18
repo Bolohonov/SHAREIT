@@ -5,6 +5,7 @@ import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.item.Item;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +23,7 @@ public class ItemMapper {
         );
     }
 
-    public ItemDtoWithBooking toItemDtoWithBooking(Item item, LocalDate lastBookingDate, LocalDate nextBookingDate,
+    public ItemDtoWithBooking toItemDtoWithBooking(Item item, LocalDateTime lastBookingDate, LocalDateTime nextBookingDate,
                                                    Collection<Comment> comments) {
         return new ItemDtoWithBooking(
                 item.getId(),
