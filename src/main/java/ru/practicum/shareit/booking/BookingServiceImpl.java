@@ -9,18 +9,15 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.exceptions.AccessToBookingException;
-import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -98,7 +95,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case CURRENT:
                 bookingsDto = bookingRepository.findBookingByBookerIdAndEndIsAfter(userId,
-                                LocalDateTime.now(ZoneId.of("GMT+03:00")),
+                                LocalDate.now(ZoneId.of("GMT+03:00")),
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .map(b -> bookingMapper.toBookingDto(b))
@@ -106,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case PAST:
                 bookingsDto = bookingRepository.findBookingByBookerIdAndEndIsBefore(userId,
-                                LocalDateTime.now(ZoneId.of("GMT+03:00")),
+                                LocalDate.now(ZoneId.of("GMT+03:00")),
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .map(b -> bookingMapper.toBookingDto(b))
@@ -114,39 +111,39 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case FUTURE:
                 bookingsDto = bookingRepository.findBookingByBookerIdAndStartIsAfter(userId,
-                                LocalDateTime.now(ZoneId.of("GMT+03:00")),
+                                LocalDate.now(ZoneId.of("GMT+03:00")),
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .map(b -> bookingMapper.toBookingDto(b))
                         .collect(Collectors.toList());
                 break;
-            case WAITING:
-                bookingsDto = bookingRepository.findBookingByBookerIdAndStatusIsWaiting(userId,
-                                Sort.by(Sort.Direction.DESC, "start"))
-                        .stream()
-                        .map(b -> bookingMapper.toBookingDto(b))
-                        .collect(Collectors.toList());
-                break;
-            case REJECTED:
-                bookingsDto = bookingRepository.findBookingByBookerIdAndStatusIsRejected(userId,
-                                Sort.by(Sort.Direction.DESC, "start"))
-                        .stream()
-                        .map(b -> bookingMapper.toBookingDto(b))
-                        .collect(Collectors.toList());
-                break;
+//            case WAITING:
+//                bookingsDto = bookingRepository.findBookingByBookerIdAndStatusWaiting(userId,
+//                                Sort.by(Sort.Direction.DESC, "start"))
+//                        .stream()
+//                        .map(b -> bookingMapper.toBookingDto(b))
+//                        .collect(Collectors.toList());
+//                break;
+//            case REJECTED:
+//                bookingsDto = bookingRepository.findBookingByBookerIdAndStatusRejected(userId,
+//                                Sort.by(Sort.Direction.DESC, "start"))
+//                        .stream()
+//                        .map(b -> bookingMapper.toBookingDto(b))
+//                        .collect(Collectors.toList());
+//                break;
         }
         return bookingsDto;
     }
 
     @Override
     public Collection<BookingDto> getBookingsByOwner(Long userId, State state) {
-        Collection<ItemDto> itemsOfUser = itemService.getUserItems(userId);
+        Collection<ItemDtoWithBooking> itemsOfUser = itemService.getUserItems(userId);
         Collection<Booking> bookings = Collections.emptyList();
         Collection<BookingDto> bookingsDto = Collections.emptyList();
         if (itemsOfUser.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        for (ItemDto itemDto : itemsOfUser) {
+        for (ItemDtoWithBooking itemDto : itemsOfUser) {
             bookings.addAll(bookingRepository.findBookingByItemId(itemDto.getId()));
         }
         switch(state) {

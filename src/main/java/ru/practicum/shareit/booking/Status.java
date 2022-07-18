@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import javax.persistence.Enumerated;
+
 public enum Status {
     /** новое бронирование, ожидает одобрения */
     WAITING,

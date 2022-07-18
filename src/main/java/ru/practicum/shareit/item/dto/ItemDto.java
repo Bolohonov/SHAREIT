@@ -1,8 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.practicum.shareit.comment.Comment;
+
+import java.util.Collection;
 
 @Data
+@AllArgsConstructor
 public class ItemDto {
     /** уникальный идентификатор вещи */
     private Long id;
@@ -24,11 +29,8 @@ public class ItemDto {
      */
     private Long request;
 
-    public ItemDto(Long id, String name, String description, boolean available, Long requestId) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.request = request;
-    }
+    /**
+     * комментарии по использования вещи
+     */
+    private Collection<Comment> comments;
 }

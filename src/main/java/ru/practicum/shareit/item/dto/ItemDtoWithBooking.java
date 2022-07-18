@@ -1,7 +1,14 @@
 package ru.practicum.shareit.item.dto;
 
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import ru.practicum.shareit.comment.Comment;
 
+import java.time.LocalDate;
+import java.util.Collection;
+
+@Data
+@AllArgsConstructor
 public class ItemDtoWithBooking {
     /** уникальный идентификатор вещи */
     private Long id;
@@ -30,16 +37,8 @@ public class ItemDtoWithBooking {
      * дата начала следующего бронирования
      */
     private LocalDate nextBookingDate;
-
-
-    public ItemDtoWithBooking(Long id, String name, String description, boolean available, Long requestId,
-                              LocalDate lastBookingDate, LocalDate nextBookingDate) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.request = requestId;
-        this.lastBookingDate = lastBookingDate;
-        this.nextBookingDate = nextBookingDate;
-    }
+    /**
+     * комментарии по использования вещи
+     */
+    private Collection<Comment> comments;
 }

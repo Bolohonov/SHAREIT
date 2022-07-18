@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
+import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -52,7 +55,7 @@ public class ItemController {
         return itemService.findItemById(id)
                 .orElseThrow(() -> {
                     log.warn("предмет с id {} не найден", id);
-                    throw new ResponseStatusException(NOT_FOUND);
+                    throw new ItemNotFoundException("Предмета с таким ID не существует");
                 });
     }
 
@@ -76,5 +79,13 @@ public class ItemController {
             log.warn("режиссер с id {} не найден для удаления", id);
             throw new ResponseStatusException(BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/{itemId}/comment")
+    @ResponseStatus(CREATED)
+    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @Valid @RequestBody Comment comment,
+                                    @PathVariable Long itemId) {
+        return itemService.addComment(userId, itemId, comment);
     }
 }

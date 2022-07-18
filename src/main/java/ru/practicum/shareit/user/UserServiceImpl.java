@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
-import ru.practicum.shareit.user.exceptions.ValidationEmailDuplicated;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collection;
@@ -29,7 +28,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public User saveUser(User user) {
-        validateEmailNotDuplicated(user);
         return userRepository.save(user);
     }
 
@@ -46,7 +44,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> updateUser(Long id, User user) {
-        validateEmailNotDuplicated(user);
         if (userRepository.findById(id).isPresent()) {
             return of(userRepository.save(this.compareToUpdate(id, user)));
         } else {
@@ -58,17 +55,6 @@ public class UserServiceImpl implements UserService {
     public boolean deleteUser(Long userId) {
         userRepository.deleteById(userId);
         return !userRepository.existsById(userId);
-    }
-
-    private void validateEmailNotDuplicated(User user) {
-        Collection<User> users = userRepository.findAll();
-        for (User u : users) {
-            if (u.getEmail().equals(user.getEmail()) && !u.getId().equals(user.getId())) {
-                log.warn("Duplicated email");
-                throw new ValidationEmailDuplicated(String.format("Пользователь с электронной почтой %s" +
-                        " уже зарегистрирован.", user.getEmail()));
-            }
-        }
     }
 
     private User compareToUpdate(Long id, User user) {

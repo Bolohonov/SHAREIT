@@ -4,9 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingRepository;
+import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentMapper;
+import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 import ru.practicum.shareit.item.dto.ItemMapper;
@@ -17,14 +22,11 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,8 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final UserService userService;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     public ItemDto addNewItem(Long userId, Item item) {
@@ -41,7 +45,8 @@ public class ItemServiceImpl implements ItemService {
             throw new UserNotFoundException("Пользователь не найден");
         }
         item.setOwnerId(userId);
-        return itemMapper.toItemDto(itemRepository.save(item));
+        return itemMapper.toItemDto(itemRepository.save(item),
+                commentRepository.findCommentsByItemIdOrderByCreatedDesc(item.getId()));
     }
 
     @Override
@@ -54,7 +59,8 @@ public class ItemServiceImpl implements ItemService {
             throw new AccessToItemException("Доступ запрещен!");
         }
         item.setOwnerId(userId);
-        return of(itemMapper.toItemDto(itemRepository.save(item)));
+        return of(itemMapper.toItemDto(itemRepository.save(item),
+                commentRepository.findCommentsByItemIdOrderByCreatedDesc(item.getId())));
     }
 
     @Override
@@ -88,7 +94,8 @@ public class ItemServiceImpl implements ItemService {
         } catch (NullPointerException e) {
             log.info("Часть полей полученного объекта пустые");
         }
-        return of(itemMapper.toItemDto(itemRepository.save(item)));
+        return of(itemMapper.toItemDto(itemRepository.save(item),
+                commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
     @Override
@@ -96,19 +103,29 @@ public class ItemServiceImpl implements ItemService {
         return of(itemMapper.toItemDto(itemRepository.findById(itemId).orElseThrow(() -> {
             throw new ItemNotFoundException("Вещь не найдена");
                 }
-        )));
+        ), commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
     @Override
     public Collection<ItemDtoWithBooking> getUserItems(Long userId) {
         Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
         for (Item i : itemRepository.findByOwnerId(userId)) {
-            bookingRepository.findBookingByItemId(i.getId())
+            LocalDate last = bookingRepository.findBookingByItemId(i.getId())
                     .stream()
-                    .filter(b -> b.getEnd().isBefore(LocalDate.now()))
-                    .collect(Collectors.toList());
-
-            itemsDto.add(itemMapper.toItemDto(i));
+                    .filter(b -> b.getEnd().isAfter(LocalDate.now()))
+                    .sorted((o1, o2) -> (int) -(o1.getEnd().toEpochDay() - o2.getEnd().toEpochDay()))
+                    .findFirst()
+                    .get()
+                    .getEnd();
+            LocalDate next = bookingRepository.findBookingByItemId(i.getId())
+                    .stream()
+                    .filter(b -> b.getStart().isAfter(LocalDate.now()))
+                    .sorted((o1, o2) -> (int) -(o1.getStart().toEpochDay() - o2.getStart().toEpochDay()))
+                    .findFirst()
+                    .get()
+                    .getStart();
+            itemsDto.add(itemMapper.toItemDtoWithBooking(i, last, next,
+                    commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
         }
         return itemsDto;
     }
@@ -118,12 +135,27 @@ public class ItemServiceImpl implements ItemService {
         Collection<ItemDto> itemsDto = new ArrayList<>();
         if (!text.isEmpty()) {
             for (Item i : itemRepository.searchItems(userId, text)) {
-                itemsDto.add(itemMapper.toItemDto(i));
+                itemsDto.add(itemMapper.toItemDto(i,
+                        commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
             }
         } else {
             return Collections.emptyList();
         }
         return itemsDto;
+    }
+
+    @Override
+    public CommentDto addComment(Long userId, Long itemId, Comment comment) {
+        Optional<LocalDate> firstEndOfBookingDate = ofNullable(bookingRepository
+                .findBookingByItemIdAndAndBookerId(itemId, userId,
+                Sort.by(Sort.Direction.ASC, "end"))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST)).getEnd());
+        if (firstEndOfBookingDate.isPresent() && firstEndOfBookingDate.get().isBefore(LocalDate.now())) {
+            commentRepository.save(comment);
+        }
+        return commentMapper.toCommentDto(comment);
     }
 
     @Override
