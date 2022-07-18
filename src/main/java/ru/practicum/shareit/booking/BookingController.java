@@ -46,10 +46,10 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     @ResponseStatus(OK)
     public BookingDto findBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @PathVariable Long id) {
-        return bookingService.findBookingById(userId, id)
+                                      @PathVariable Long bookingId) {
+        return bookingService.findBookingById(userId, bookingId)
                 .orElseThrow(() -> {
-                    log.warn("предмет с id {} не найден", id);
+                    log.warn("предмет с id {} не найден", bookingId);
                     throw new ResponseStatusException(NOT_FOUND);
                 });
     }

@@ -204,7 +204,8 @@ public class BookingServiceImpl implements BookingService {
         if (itemService.findItemById(booking.getItemId()).get().getAvailable().equals(Boolean.FALSE)) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
-        if (booking.getEnd().isBefore(LocalDateTime.now().minusSeconds(20))) {
+        if (booking.getStart().isBefore(LocalDateTime.now().minusSeconds(20))
+                || booking.getEnd().isBefore(LocalDateTime.now().minusSeconds(20))) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
     }
