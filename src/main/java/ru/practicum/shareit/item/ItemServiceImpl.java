@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -41,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
+    @Transactional(readOnly = true)
     @Override
     public ItemDto addNewItem(Long userId, Item item) {
         if (!userService.getUserById(userId).isPresent()) {
@@ -100,6 +102,7 @@ public class ItemServiceImpl implements ItemService {
                 commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
@@ -112,6 +115,7 @@ public class ItemServiceImpl implements ItemService {
                 commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Collection<ItemDtoWithBooking> getUserItems(Long userId) {
         Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
@@ -124,6 +128,7 @@ public class ItemServiceImpl implements ItemService {
         return itemsDto;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Collection<ItemDto> search(Long userId, String text) {
         Collection<ItemDto> itemsDto = new ArrayList<>();
@@ -138,6 +143,7 @@ public class ItemServiceImpl implements ItemService {
         return itemsDto;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CommentDto addComment(Long userId, Long itemId, Comment comment) {
         comment.setCreated(LocalDateTime.now());
@@ -168,6 +174,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean checkOwner(Long userId, Long itemId) {
         return itemRepository.findById(itemId).orElseThrow(() -> {

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -36,6 +37,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemService itemService;
 
+    @Transactional(readOnly = true)
     @Override
     public BookingDto addNew(Long userId, Booking booking) {
         validateBooking(userId, booking);
@@ -71,6 +73,7 @@ public class BookingServiceImpl implements BookingService {
                 itemService.findItemById(booking.getItemId(), userId).get().getName()));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<BookingDto> findBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository
@@ -87,6 +90,7 @@ public class BookingServiceImpl implements BookingService {
                 itemService.findItemById(booking.getItemId(), userId).get().getName()));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Collection<BookingDto> getUserBookings(Long userId, State state) {
         Collection<BookingDto> bookingsDto = Collections.emptyList();
@@ -148,6 +152,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingsDto;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Collection<BookingDto> getBookingsByOwner(Long userId, State state) {
         Collection<ItemDtoWithBooking> itemsOfUser = itemService.getUserItems(userId);
