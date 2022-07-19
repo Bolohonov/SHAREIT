@@ -1,18 +1,17 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.lang.Nullable;
-import ru.practicum.shareit.comment.Comment;
+import lombok.*;
+import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.io.Serializable;
 import java.util.Collection;
 
 @Data
 @AllArgsConstructor
 public class ItemDtoWithBooking {
-    /** уникальный идентификатор вещи */
+    /**
+     * уникальный идентификатор вещи
+     */
     private Long id;
     /**
      * краткое название
@@ -34,13 +33,22 @@ public class ItemDtoWithBooking {
     /**
      * дата окончания последнего бронирования
      */
-    private LocalDateTime lastBookingDate;
+    private Booking lastBooking;
     /**
      * дата начала следующего бронирования
      */
-    private LocalDateTime nextBookingDate;
+    private Booking nextBooking;
     /**
      * комментарии по использования вещи
      */
-    private Collection<Comment> comments;
+    private Collection<CommentDtoForItem> comments;
+
+    @AllArgsConstructor
+    @ToString
+    @Getter
+    @Setter
+    static class Booking implements Serializable {
+        private Long id;
+        private Long bookerId;
+    }
 }

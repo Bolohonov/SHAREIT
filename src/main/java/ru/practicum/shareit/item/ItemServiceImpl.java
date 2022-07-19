@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,12 +22,9 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -105,39 +101,24 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<ItemDto> findItemById(Long itemId) {
-        return of(itemMapper.toItemDto(itemRepository.findById(itemId).orElseThrow(() -> {
+    public Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             throw new ItemNotFoundException("Вещь не найдена");
-                }
-        ), commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
+        });
+
+        return of(itemMapper.toItemDtoWithBooking(item,
+                this.getLastAndNextBookingByItemIdAndUserId(itemId, userId)[0],
+                this.getLastAndNextBookingByItemIdAndUserId(itemId, userId)[1],
+                commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
     @Override
     public Collection<ItemDtoWithBooking> getUserItems(Long userId) {
         Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
         for (Item i : itemRepository.findByOwnerId(userId)) {
-            Collection<Booking> bookings = bookingRepository.findBookingByItemId(i.getId());
-            LocalDateTime last = null;
-            LocalDateTime next = null;
-            if (!bookings.isEmpty()) {
-                last = bookings
-                        .stream()
-                        .filter(b -> b.getEnd().isAfter(LocalDateTime.now()))
-                        .sorted((o1, o2) -> (int) -(o1.getEnd().toEpochSecond(ZoneOffset.UTC)
-                                - o2.getEnd().toEpochSecond(ZoneOffset.UTC)))
-                        .findFirst()
-                        .get()
-                        .getEnd();
-                next = bookings
-                        .stream()
-                        .filter(b -> b.getStart().isAfter(LocalDateTime.now()))
-                        .sorted((o1, o2) -> (int) -(o1.getStart().toEpochSecond(ZoneOffset.UTC)
-                                - o2.getStart().toEpochSecond(ZoneOffset.UTC)))
-                        .findFirst()
-                        .get()
-                        .getStart();
-            }
-            itemsDto.add(itemMapper.toItemDtoWithBooking(i, last, next,
+            itemsDto.add(itemMapper.toItemDtoWithBooking(i,
+                    this.getLastAndNextBookingByItemIdAndUserId(i.getId(), userId)[0],
+                    this.getLastAndNextBookingByItemIdAndUserId(i.getId(), userId)[1],
                     commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
         }
         return itemsDto;
@@ -159,16 +140,21 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto addComment(Long userId, Long itemId, Comment comment) {
-        Optional<LocalDateTime> firstEndOfBookingDate = ofNullable(bookingRepository
+        comment.setCreated(LocalDateTime.now());
+        Optional<LocalDateTime> firstStartOfBookingDate = ofNullable(bookingRepository
                 .findBookingByItemIdAndAndBookerId(itemId, userId,
-                Sort.by(Sort.Direction.ASC, "end"))
+                        Sort.by(Sort.Direction.ASC, "start"))
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST)).getEnd());
-        if (firstEndOfBookingDate.isPresent() && firstEndOfBookingDate.get().isBefore(LocalDateTime.now())) {
+                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST)).getStart());
+        comment.setItemId(itemId);
+        comment.setAuthorId(userId);
+        if (firstStartOfBookingDate.isPresent() && firstStartOfBookingDate.get().isBefore(LocalDateTime.now())) {
             commentRepository.save(comment);
+        } else {
+            throw new ResponseStatusException(BAD_REQUEST);
         }
-        return commentMapper.toCommentDto(comment);
+        return commentMapper.toCommentDto(comment, userService.getUserById(userId).get().getName());
     }
 
     @Override
@@ -188,5 +174,31 @@ public class ItemServiceImpl implements ItemService {
                     throw new ItemNotFoundException("Вещь не найдена");
                 }
         ).getOwnerId().equals(userId);
+    }
+
+    private Optional<Booking>[] getLastAndNextBookingByItemIdAndUserId(Long itemId, Long userId) {
+        Collection<Booking> bookings = bookingRepository.findBookingByItemId(itemId);
+        Optional<Booking> last = Optional.empty();
+        Optional<Booking> next = Optional.empty();
+        if (!bookings.isEmpty()) {
+            if (this.checkOwner(userId, itemId) || bookingRepository.findBookingByItemIdAndAndBookerId(itemId, userId,
+                    Sort.by(Sort.Direction.DESC, "bookerId")).isEmpty()) {
+                last = bookings
+                        .stream()
+                        .filter(b -> b.getEnd().isBefore(LocalDateTime.now()))
+                        .collect(Collectors.toList())
+                        .stream()
+                        .sorted(Comparator.comparing(Booking::getEnd).reversed())
+                        .findFirst();
+                next = bookings
+                        .stream()
+                        .filter(b -> b.getStart().isAfter(LocalDateTime.now()))
+                        .collect(Collectors.toList())
+                        .stream()
+                        .sorted(Comparator.comparing(Booking::getStart))
+                        .findFirst();
+            }
+        }
+        return new Optional[]{last, next};
     }
 }

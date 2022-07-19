@@ -9,7 +9,9 @@ import java.util.Collection;
 @Data
 @AllArgsConstructor
 public class ItemDto {
-    /** уникальный идентификатор вещи */
+    /**
+     * уникальный идентификатор вещи
+     */
     private Long id;
     /**
      * краткое название

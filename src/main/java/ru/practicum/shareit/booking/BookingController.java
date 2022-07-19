@@ -5,10 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
-
-import javax.validation.Valid;
 
 import java.util.Collection;
 

@@ -15,7 +15,7 @@ public interface ItemService {
 
     Optional<ItemDto> patchedItem(Long userId, Long itemId, String item);
 
-    Optional<ItemDto> findItemById(Long itemId);
+    Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId);
 
     Collection<ItemDtoWithBooking> getUserItems(Long userId);
 

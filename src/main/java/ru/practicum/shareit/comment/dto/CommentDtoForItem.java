@@ -2,12 +2,14 @@ package ru.practicum.shareit.comment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Data
-public class CommentDto {
+@ToString
+public class CommentDtoForItem {
     /**
      * уникальный идентификатор вещи
      */
@@ -17,16 +19,11 @@ public class CommentDto {
      */
     private String text;
     /**
-     * вещь, к которой пользователь оставляет комментарий
+     * имя автора
      */
-    private Long itemId;
-    /**
-     * автор комментария
-     */
-    private Long authorId;
+    private String authorName;
     /**
      * дата создания комментария
      */
     private LocalDateTime created;
-    private String authorName;
 }

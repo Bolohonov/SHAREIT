@@ -51,8 +51,9 @@ public class ItemController {
 
     @GetMapping("/{id}")
     @ResponseStatus(OK)
-    public ItemDto findItemById(@PathVariable Long id) {
-        return itemService.findItemById(id)
+    public ItemDtoWithBooking findItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                           @PathVariable Long id) {
+        return itemService.findItemById(id, userId)
                 .orElseThrow(() -> {
                     log.warn("предмет с id {} не найден", id);
                     throw new ItemNotFoundException("Предмета с таким ID не существует");
@@ -82,7 +83,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    @ResponseStatus(CREATED)
+    @ResponseStatus(OK)
     public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                     @Valid @RequestBody Comment comment,
                                     @PathVariable Long itemId) {

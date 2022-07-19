@@ -8,29 +8,43 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- класс с описанием бронирования вещи - Booking //
+ * класс с описанием бронирования вещи - Booking //
  */
 @Entity
 @Table(name = "bookings", schema = "public")
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class Booking {
-    /** уникальный идентификатор бронирования */
+    /**
+     * уникальный идентификатор бронирования
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    /** дата начала бронирования */
+    /**
+     * дата начала бронирования
+     */
     @Column(name = "start_date_time")
     private LocalDateTime start;
-    /** дата конца бронирования */
+    /**
+     * дата конца бронирования
+     */
     @Column(name = "end_date_time")
     private LocalDateTime end;
-    /** вещь, которую пользователь бронирует */
+    /**
+     * вещь, которую пользователь бронирует
+     */
     @Column(name = "item_id")
     private Long itemId;
-    /** пользователь, который осуществляет бронирование */
+    /**
+     * пользователь, который осуществляет бронирование
+     */
     @Column(name = "booker_id")
     private Long bookerId;
-    /** статус бронирования */
+    /**
+     * статус бронирования
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_status")
     private Status status;

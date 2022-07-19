@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import ru.practicum.shareit.booking.Status;
 
@@ -10,9 +9,10 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @ToString
-//@JsonSerialize(using = BookingDtoSerializer.class)
 public class BookingDto implements Serializable {
-    /** уникальный идентификатор вещи */
+    /**
+     * уникальный идентификатор вещи
+     */
     private Long id;
     /**
      * дата начала бронирования
@@ -26,7 +26,9 @@ public class BookingDto implements Serializable {
      * вещь, которую пользователь бронирует
      */
     private Item item;
-    /** пользователь, который осуществляет бронирование */
+    /**
+     * пользователь, который осуществляет бронирование
+     */
     private Booker booker;
     /**
      * статус бронирования
@@ -34,14 +36,18 @@ public class BookingDto implements Serializable {
     private Status status;
 
     @AllArgsConstructor
-    @ToString @Getter @Setter
+    @ToString
+    @Getter
+    @Setter
     static class Booker implements Serializable {
         private Long id;
 
     }
 
     @AllArgsConstructor
-    @ToString @Getter @Setter
+    @ToString
+    @Getter
+    @Setter
     static class Item implements Serializable {
         private Long id;
         private String name;

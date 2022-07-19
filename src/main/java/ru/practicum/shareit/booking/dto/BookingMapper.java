@@ -3,8 +3,6 @@ package ru.practicum.shareit.booking.dto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.Status;
-import ru.practicum.shareit.item.ItemService;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +13,7 @@ public class BookingMapper {
                 booking.getStart(),
                 booking.getEnd(),
                 new BookingDto.Item(booking.getItemId(), itemName),
-                new BookingDto.Booker(booking.getId()),
+                new BookingDto.Booker(booking.getBookerId()),
                 booking.getStatus()
         );
     }

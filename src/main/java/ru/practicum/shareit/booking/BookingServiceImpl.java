@@ -13,20 +13,19 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
+import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.of;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBookerId(userId);
         booking.setStatus(Status.WAITING);
         return bookingMapper.toBookingDto(bookingRepository.save(booking),
-                itemService.findItemById(booking.getItemId()).get().getName());
+                itemService.findItemById(booking.getItemId(), userId).get().getName());
     }
 
     @Override
@@ -51,12 +50,15 @@ public class BookingServiceImpl implements BookingService {
         if (approved == null) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
-        if (!userService.getUserById(userId).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         });
+        if (booking.getStatus().equals(Status.APPROVED)) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
+        if (!userService.getUserById(userId).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         if (!itemService.checkOwner(userId, booking.getItemId())) {
             throw new AccessToItemException("У пользователя нет доступа к данной функции!");
         }
@@ -66,7 +68,7 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(Status.REJECTED);
         }
         return of(bookingMapper.toBookingDto(bookingRepository.save(booking),
-                itemService.findItemById(booking.getItemId()).get().getName()));
+                itemService.findItemById(booking.getItemId(), userId).get().getName()));
     }
 
     @Override
@@ -82,19 +84,19 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         return of(bookingMapper.toBookingDto(booking,
-                itemService.findItemById(booking.getItemId()).get().getName()));
+                itemService.findItemById(booking.getItemId(), userId).get().getName()));
     }
 
     @Override
     public Collection<BookingDto> getUserBookings(Long userId, State state) {
-        Collection<BookingDto> bookingsDto = new ArrayList<>();
-        switch(state) {
+        Collection<BookingDto> bookingsDto = Collections.emptyList();
+        switch (state) {
             case ALL:
                 bookingsDto = bookingRepository.findBookingByBookerId(userId,
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case CURRENT:
@@ -103,7 +105,7 @@ public class BookingServiceImpl implements BookingService {
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case PAST:
@@ -112,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
@@ -121,7 +123,7 @@ public class BookingServiceImpl implements BookingService {
                                 Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case WAITING:
@@ -130,7 +132,7 @@ public class BookingServiceImpl implements BookingService {
                         .stream()
                         .filter(b -> b.getStatus().equals(Status.WAITING))
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case REJECTED:
@@ -139,7 +141,7 @@ public class BookingServiceImpl implements BookingService {
                         .stream()
                         .filter(b -> b.getStatus().equals(Status.REJECTED))
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
         }
@@ -149,7 +151,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Collection<BookingDto> getBookingsByOwner(Long userId, State state) {
         Collection<ItemDtoWithBooking> itemsOfUser = itemService.getUserItems(userId);
-        Collection<Booking> bookings = Collections.emptyList();
+        Collection<Booking> bookings = new ArrayList<>();
         Collection<BookingDto> bookingsDto = Collections.emptyList();
         if (itemsOfUser.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST);
@@ -157,40 +159,58 @@ public class BookingServiceImpl implements BookingService {
         for (ItemDtoWithBooking itemDto : itemsOfUser) {
             bookings.addAll(bookingRepository.findBookingByItemId(itemDto.getId()));
         }
-        switch(state) {
+        switch (state) {
             case ALL:
-                bookingsDto = bookings.stream().map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
-                    .collect(Collectors.toList());
+                bookingsDto = bookings
+                        .stream()
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
+                        .collect(Collectors.toList());
                 break;
             case CURRENT:
-                bookingsDto = bookings.stream().filter((b) -> b.getEnd().isAfter(LocalDateTime.now()))
+                bookingsDto = bookings
+                        .stream()
+                        .filter((b) -> b.getEnd().isAfter(LocalDateTime.now()))
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case PAST:
-                bookingsDto = bookings.stream().filter((b) -> b.getEnd().isBefore(LocalDateTime.now()))
+                bookingsDto = bookings
+                        .stream()
+                        .filter((b) -> b.getEnd().isBefore(LocalDateTime.now()))
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
-                bookingsDto = bookings.stream().filter((b) -> b.getStart().isAfter(LocalDateTime.now()))
+                bookingsDto = bookings
+                        .stream()
+                        .filter((b) -> b.getStart().isAfter(LocalDateTime.now()))
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case WAITING:
-                bookingsDto = bookings.stream().filter((b) -> b.getStatus().equals(Status.WAITING))
+                bookingsDto = bookings
+                        .stream()
+                        .filter((b) -> b.getStatus().equals(Status.WAITING))
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
             case REJECTED:
-                bookingsDto = bookings.stream().filter((b) -> b.getStatus().equals(Status.REJECTED))
+                bookingsDto = bookings
+                        .stream()
+                        .filter((b) -> b.getStatus().equals(Status.REJECTED))
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .map(b -> bookingMapper.toBookingDto(b,
-                                itemService.findItemById(b.getItemId()).get().getName()))
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
                         .collect(Collectors.toList());
                 break;
         }
@@ -198,14 +218,20 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateBooking(Long userId, Booking booking) {
+        if (!itemService.findItemById(booking.getItemId(), userId).isPresent()) {
+            throw new ItemNotFoundException("Вещь не найдена");
+        }
+        if (itemService.checkOwner(userId, booking.getItemId())) {
+            throw new ResponseStatusException(NOT_FOUND);
+        }
         if (!userService.getUserById(userId).isPresent()) {
             throw new UserNotFoundException("Пользователь не найден");
         }
-        if (itemService.findItemById(booking.getItemId()).get().getAvailable().equals(Boolean.FALSE)) {
+        if (itemService.findItemById(booking.getItemId(), userId).get().getAvailable().equals(Boolean.FALSE)) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
-        if (booking.getStart().isBefore(LocalDateTime.now().minusSeconds(20))
-                || booking.getEnd().isBefore(LocalDateTime.now().minusSeconds(20))) {
+        if (booking.getStart().isBefore(LocalDateTime.now())
+                || booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
     }
