@@ -10,9 +10,6 @@ import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.*;
 
-/**
- * // TODO .
- */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
