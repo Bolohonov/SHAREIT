@@ -239,5 +239,8 @@ public class BookingServiceImpl implements BookingService {
                 || booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
+        if (booking.getStart().isAfter(booking.getEnd())) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
     }
 }
