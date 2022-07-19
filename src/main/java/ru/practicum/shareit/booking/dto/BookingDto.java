@@ -41,7 +41,6 @@ public class BookingDto implements Serializable {
     @Setter
     static class Booker implements Serializable {
         private Long id;
-
     }
 
     @AllArgsConstructor
