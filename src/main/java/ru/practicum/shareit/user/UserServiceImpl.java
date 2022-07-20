@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.Collection;
 import java.util.Optional;
 
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
