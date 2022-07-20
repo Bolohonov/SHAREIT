@@ -3,12 +3,10 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
-import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -33,31 +31,21 @@ public class ItemController {
     @ResponseStatus(OK)
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @Valid @RequestBody Item item) {
-        return itemService.updateItem(userId, item).orElseThrow(() -> {
-            log.warn("пользователь с id {} не найден для обновления", userId);
-            throw new ResponseStatusException(BAD_REQUEST);
-        });
+        return itemService.updateItem(userId, item).get();
     }
 
     @PatchMapping("{id}")
     @ResponseStatus(OK)
     public ItemDto patchedItem(@PathVariable Long id, @RequestHeader("X-Sharer-User-Id") Long userId,
                                @RequestBody String json) {
-        return itemService.patchedItem(userId, id, json).orElseThrow(() -> {
-            log.warn("пользователь с id {} не найден для обновления", userId);
-            throw new ResponseStatusException(BAD_REQUEST);
-        });
+        return itemService.patchedItem(userId, id, json).get();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(OK)
     public ItemDtoWithBooking findItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                            @PathVariable Long id) {
-        return itemService.findItemById(id, userId)
-                .orElseThrow(() -> {
-                    log.warn("предмет с id {} не найден", id);
-                    throw new ItemNotFoundException("Предмета с таким ID не существует");
-                });
+        return itemService.findItemById(id, userId).get();
     }
 
     @GetMapping
@@ -76,10 +64,7 @@ public class ItemController {
     @ResponseStatus(NO_CONTENT)
     public void deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @PathVariable Long id) {
-        if (!itemService.deleteItem(userId, id)) {
-            log.warn("режиссер с id {} не найден для удаления", id);
-            throw new ResponseStatusException(BAD_REQUEST);
-        }
+        itemService.deleteItem(userId, id);
     }
 
     @PostMapping("/{itemId}/comment")

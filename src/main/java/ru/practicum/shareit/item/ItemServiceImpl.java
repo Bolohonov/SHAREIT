@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -63,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
             throw new AccessToItemException("Доступ запрещен!");
         }
         item.setOwnerId(userId);
-        return of(itemMapper.toItemDto(itemRepository.save(item),
+        return ofNullable(itemMapper.toItemDto(itemRepository.save(item),
                 commentRepository.findCommentsByItemIdOrderByCreatedDesc(item.getId())));
     }
 
@@ -98,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
         } catch (NullPointerException e) {
             log.info("Часть полей полученного объекта пустые");
         }
-        return of(itemMapper.toItemDto(itemRepository.save(item),
+        return ofNullable(itemMapper.toItemDto(itemRepository.save(item),
                 commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
@@ -109,7 +108,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ItemNotFoundException("Вещь не найдена");
         });
 
-        return of(itemMapper.toItemDtoWithBooking(item,
+        return ofNullable(itemMapper.toItemDtoWithBooking(item,
                 this.getLastAndNextBookingByItemIdAndUserId(itemId, userId)[0],
                 this.getLastAndNextBookingByItemIdAndUserId(itemId, userId)[1],
                 commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
@@ -164,13 +163,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public boolean deleteItem(Long userId, Long itemId) {
+    public void deleteItem(Long userId, Long itemId) {
         if (itemRepository.findById(itemId).isEmpty()
                 || itemRepository.findById(itemId).get().getOwnerId().equals(userId)) {
-            return false;
+            throw new ResponseStatusException(BAD_REQUEST);
         } else {
             itemRepository.deleteById(itemId);
-            return true;
         }
     }
 

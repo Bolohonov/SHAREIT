@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
 import java.util.Collection;
@@ -30,21 +29,14 @@ public class BookingController {
     public BookingDto approveOrRejectBooking(@PathVariable Long bookingId,
                                              @RequestHeader("X-Sharer-User-Id") Long userId,
                                              @RequestParam Boolean approved) {
-        return bookingService.approveOrRejectBooking(userId, bookingId, approved).orElseThrow(() -> {
-            log.warn("запрос с id {} не найден для обновления", bookingId);
-            throw new ResponseStatusException(BAD_REQUEST);
-        });
+        return bookingService.approveOrRejectBooking(userId, bookingId, approved).get();
     }
 
     @GetMapping("/{bookingId}")
     @ResponseStatus(OK)
     public BookingDto findBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                       @PathVariable Long bookingId) {
-        return bookingService.findBookingById(userId, bookingId)
-                .orElseThrow(() -> {
-                    log.warn("предмет с id {} не найден", bookingId);
-                    throw new ResponseStatusException(NOT_FOUND);
-                });
+        return bookingService.findBookingById(userId, bookingId).get();
     }
 
     @GetMapping

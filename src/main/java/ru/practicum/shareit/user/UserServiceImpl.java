@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -11,6 +12,8 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @Service
@@ -44,17 +47,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> updateUser(Long id, User user) {
-        if (userRepository.findById(id).isPresent()) {
-            return of(userRepository.save(this.compareToUpdate(id, user)));
-        } else {
-            return Optional.empty();
-        }
+        return ofNullable(userRepository.save(this.compareToUpdate(id, user)));
     }
 
     @Override
-    public boolean deleteUser(Long userId) {
+    public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
-        return !userRepository.existsById(userId);
+        if (userRepository.existsById(userId)) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
     }
 
     private User compareToUpdate(Long id, User user) {

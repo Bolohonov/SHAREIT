@@ -19,7 +19,7 @@ public interface ItemService {
 
     Collection<ItemDtoWithBooking> getUserItems(Long userId);
 
-    boolean deleteItem(Long userId, Long itemId);
+    void deleteItem(Long userId, Long itemId);
 
     boolean checkOwner(Long userId, Long itemId);
 
