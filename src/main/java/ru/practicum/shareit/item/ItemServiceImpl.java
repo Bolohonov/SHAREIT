@@ -133,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
         Collection<ItemDto> itemsDto = new ArrayList<>();
         if (!text.isEmpty()) {
             for (Item i : itemRepository
-                    .searchItemsByNameContainingOrDescriptionContaining(text)) {
+                    .searchItemsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(text, text)) {
                 if (i.getOwnerId().equals(userId) || i.getAvailable()) {
                     itemsDto.add(itemMapper.toItemDto(i,
                             commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
