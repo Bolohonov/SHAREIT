@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.*;
+import org.springframework.stereotype.Indexed;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
  * класс с описанием вещи для шеринга - Item
  */
 @Entity
+@Indexed
 @Table(name = "items", schema = "public")
 @Getter
 @Setter
