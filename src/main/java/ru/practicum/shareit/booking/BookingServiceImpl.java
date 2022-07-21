@@ -37,7 +37,6 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemService itemService;
 
-    private static final LocalDateTime NOW = LocalDateTime.now(ZoneId.of("GMT+03:00"));
     private static final Sort SORT_BY_START_DESC = Sort.by(Sort.Direction.DESC, "start");
 
     @Transactional(readOnly = true)
@@ -106,20 +105,20 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case CURRENT:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsAfter(userId,
-                        NOW,
+                        LocalDateTime.now(),
                         SORT_BY_START_DESC);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case PAST:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsBefore(userId,
-                        NOW,
+                        LocalDateTime.now(),
                         SORT_BY_START_DESC);
 
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findBookingByBookerIdAndStartIsAfter(userId,
-                        NOW,
+                        LocalDateTime.now(),
                         SORT_BY_START_DESC);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
