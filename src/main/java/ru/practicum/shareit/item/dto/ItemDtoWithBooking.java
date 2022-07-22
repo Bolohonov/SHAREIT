@@ -1,14 +1,14 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import ru.practicum.shareit.comment.Comment;
+import lombok.*;
+import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 @Data
 @AllArgsConstructor
-public class ItemDto {
+public class ItemDtoWithBooking {
     /**
      * уникальный идентификатор вещи
      */
@@ -30,9 +30,25 @@ public class ItemDto {
      * то в этом поле будет храниться ссылка на соответствующий запрос
      */
     private Long request;
-
+    /**
+     * дата окончания последнего бронирования
+     */
+    private Booking lastBooking;
+    /**
+     * дата начала следующего бронирования
+     */
+    private Booking nextBooking;
     /**
      * комментарии по использования вещи
      */
-    private Collection<Comment> comments;
+    private Collection<CommentDtoForItem> comments;
+
+    @AllArgsConstructor
+    @ToString
+    @Getter
+    @Setter
+    static class Booking implements Serializable {
+        private Long id;
+        private Long bookerId;
+    }
 }

@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -32,19 +31,13 @@ public class UserController {
     @PutMapping
     @ResponseStatus(OK)
     public User updateUser(@RequestBody User user) {
-        return userService.updateUser(user.getId(), user).orElseThrow(() -> {
-            log.warn("пользователь с id {} не найден", user.getId());
-            throw new ResponseStatusException(NOT_FOUND);
-        });
+        return userService.updateUser(user.getId(), user).get();
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(OK)
     public User patchedUser(@PathVariable Long id, @RequestBody User user) {
-        return userService.updateUser(id, user).orElseThrow(() -> {
-            log.warn("пользователь с id {} не найден", user.getId());
-            throw new ResponseStatusException(NOT_FOUND);
-        });
+        return userService.updateUser(id, user).get();
     }
 
     @GetMapping("/{id}")
@@ -56,9 +49,6 @@ public class UserController {
     @DeleteMapping("/{id}")
     @ResponseStatus(OK)
     public void deleteUser(@PathVariable Long id) {
-        if (!userService.deleteUser(id)) {
-            log.warn("режиссер с id {} не найден для удаления", id);
-            throw new ResponseStatusException(BAD_REQUEST);
-        }
+        userService.deleteUser(id);
     }
 }

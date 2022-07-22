@@ -6,9 +6,13 @@ import java.time.LocalDateTime;
 
 @Data
 public class ItemRequestDto {
-    /** уникальный идентификатор запроса */
+    /**
+     * уникальный идентификатор запроса
+     */
     private String description;
-    /** дата и время создания запроса */
+    /**
+     * дата и время создания запроса
+     */
     private LocalDateTime created;
 
     public ItemRequestDto(String description, LocalDateTime created) {

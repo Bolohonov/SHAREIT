@@ -1,26 +1,51 @@
 package ru.practicum.shareit.booking;
 
-import lombok.Data;
-import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.user.User;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
- класс с описанием бронирования вещи - Booking //
+ * класс с описанием бронирования вещи - Booking //
  */
-@Data
+@Entity
+@Table(name = "bookings", schema = "public")
+@Getter
+@Setter
+@ToString
 public class Booking {
-    /** уникальный идентификатор бронирования */
+    /**
+     * уникальный идентификатор бронирования
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    /** дата начала бронирования */
-    private LocalDate start;
-    /** дата конца бронирования */
-    private LocalDate end;
-    /** вещь, которую пользователь бронирует */
-    private Item item;
-    /** пользователь, который осуществляет бронирование */
-    private User booker;
-    /** статус бронирования */
+    /**
+     * дата начала бронирования
+     */
+    @Column(name = "start_date_time")
+    private LocalDateTime start;
+    /**
+     * дата конца бронирования
+     */
+    @Column(name = "end_date_time")
+    private LocalDateTime end;
+    /**
+     * вещь, которую пользователь бронирует
+     */
+    @Column(name = "item_id")
+    private Long itemId;
+    /**
+     * пользователь, который осуществляет бронирование
+     */
+    @Column(name = "booker_id")
+    private Long bookerId;
+    /**
+     * статус бронирования
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "booking_status")
     private Status status;
 }
