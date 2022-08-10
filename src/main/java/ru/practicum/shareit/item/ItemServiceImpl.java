@@ -16,6 +16,7 @@ import ru.practicum.shareit.comment.dto.CommentMapper;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
+import ru.practicum.shareit.item.dto.ItemDtoWithoutComments;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
@@ -105,7 +106,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
-            throw new ItemNotFoundException("Вещь не найдена");
+                    throw new ItemNotFoundException("Вещь не найдена");
         });
 
         return ofNullable(itemMapper.toItemDtoWithBooking(item,
@@ -180,6 +181,12 @@ public class ItemServiceImpl implements ItemService {
                     throw new ItemNotFoundException("Вещь не найдена");
                 }
         ).getOwnerId().equals(userId);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Collection<ItemDtoWithoutComments> findItemsByRequest(Long requestId) {
+        return itemMapper.toItemDtoWithoutComments(itemRepository.findByRequestId(requestId));
     }
 
     private Optional<Booking>[] getLastAndNextBookingByItemIdAndUserId(Long itemId, Long userId) {

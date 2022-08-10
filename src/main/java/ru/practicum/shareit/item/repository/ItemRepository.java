@@ -10,6 +10,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Collection<Item> findByOwnerId(Long userId);
 
+    Collection<Item> findByRequestId(Long requestId);
+
     @Query("select i from Item i " +
             "where (upper(i.name) like upper(concat('%', ?2, '%')) " +
             " or upper(i.description) like upper(concat('%', ?2, '%'))) " +

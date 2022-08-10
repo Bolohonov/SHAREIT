@@ -50,6 +50,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Optional<BookingDto> approveOrRejectBooking(Long userId, Long bookingId, Boolean approved) {
+        checkUser(userId);
         if (approved == null) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
@@ -77,6 +78,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public Optional<BookingDto> findBookingById(Long userId, Long bookingId) {
+        checkUser(userId);
         Booking booking = bookingRepository
                 .findById(bookingId)
                 .orElseThrow(() -> {
@@ -94,8 +96,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public Collection<BookingDto> getUserBookings(Long userId, State state) {
-        Collection<BookingDto> bookingsDto = Collections.emptyList();
-        Collection<Booking> bookings = new ArrayList<>();
+        checkUser(userId);
+        Collection<BookingDto> bookingsDto = new ArrayList<>();
+        Collection<Booking> bookings;
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findBookingByBookerId(userId,
@@ -138,9 +141,10 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public Collection<BookingDto> getBookingsByOwner(Long userId, State state) {
+        checkUser(userId);
         Collection<ItemDtoWithBooking> itemsOfUser = itemService.getUserItems(userId);
         Collection<Booking> bookings = new ArrayList<>();
-        Collection<BookingDto> bookingsDto = Collections.emptyList();
+        Collection<BookingDto> bookingsDto = new ArrayList<>();
         Predicate function;
         if (itemsOfUser.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST);
@@ -216,5 +220,11 @@ public class BookingServiceImpl implements BookingService {
                 .map(b -> bookingMapper.toBookingDto(b,
                         itemService.findItemById(b.getItemId(), userId).get().getName()))
                 .collect(Collectors.toList());
+    }
+
+    private void checkUser(Long userId) {
+        if (!userService.getUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
     }
 }

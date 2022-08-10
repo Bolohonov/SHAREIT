@@ -31,6 +31,20 @@ public class ItemMapper {
         );
     }
 
+    public static Collection<ItemDtoWithoutComments> toItemDtoWithoutComments(Collection<Item> items) {
+        Collection<ItemDtoWithoutComments> dtos = new ArrayList<>();
+        for (Item item : items) {
+            dtos.add(new ItemDtoWithoutComments(
+                    item.getId(),
+                    item.getName(),
+                    item.getDescription(),
+                    item.getAvailable() != null ? item.getAvailable() : null,
+                    item.getRequestId())
+            );
+        }
+        return dtos;
+    }
+
     public ItemDtoWithBooking toItemDtoWithBooking(Item item, Optional<Booking> last, Optional<Booking> next,
                                                    Collection<Comment> comments) {
         Collection<CommentDtoForItem> commentsForItem = new ArrayList<>();
