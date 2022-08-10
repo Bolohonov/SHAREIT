@@ -15,6 +15,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select i from Item i " +
             "where (upper(i.name) like upper(concat('%', ?2, '%')) " +
             " or upper(i.description) like upper(concat('%', ?2, '%'))) " +
-            " and (i.ownerId = ?1 or i.available = TRUE) ")
-    Collection<Item> search(Long userId, String text);
+            " and (i.ownerId = ?1 or i.available = TRUE) order by i.id")
+    Collection<Item> search(Long userId, String text, Integer from, Integer size);
 }

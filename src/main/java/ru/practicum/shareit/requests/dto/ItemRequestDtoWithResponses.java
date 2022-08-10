@@ -1,15 +1,18 @@
 package ru.practicum.shareit.requests.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
 @AllArgsConstructor
+@Data
 public class ItemRequestDtoWithResponses {
+    /**
+     * уникальный идентификатор запроса
+     */
+    private Long id;
     /**
      * уникальный идентификатор запроса
      */
@@ -19,13 +22,13 @@ public class ItemRequestDtoWithResponses {
      */
     private LocalDateTime created;
 
-    private Collection<Response> responses;
+    private Collection<Response> items;
 
     @AllArgsConstructor
     @ToString
     @Getter
     @Setter
-    static class Response {
+    static class Response implements Serializable {
         /**
          * уникальный идентификатор вещи
          */
@@ -38,6 +41,15 @@ public class ItemRequestDtoWithResponses {
          * развёрнутое описание
          */
         private String description;
+        /**
+         * статус о том, доступна или нет вещь для аренды
+         */
+        private Boolean available;
+        /**
+         * если вещь была создана по запросу другого пользователя,
+         * то в этом поле будет храниться ссылка на соответствующий запрос
+         */
+        private Long requestId;
     }
 }
 

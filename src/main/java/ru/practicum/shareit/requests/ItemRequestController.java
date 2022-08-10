@@ -30,21 +30,24 @@ public class ItemRequestController {
     @GetMapping("/all")
     @ResponseStatus(OK)
     public Collection<ItemRequestDto> findAllItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                          @RequestParam(value = "from") Integer from,
-                                                          @RequestParam(value = "size") Integer size) {
+                                                          @RequestParam(value = "from", defaultValue =
+                                                                  "0") Integer from,
+                                                          @RequestParam(value = "size", defaultValue =
+                                                                  "50") Integer size) {
         return requestService.getAllRequests(userId, from, size);
     }
 
     @GetMapping
     @ResponseStatus(OK)
-    public Collection<ItemRequestDtoWithResponses> findAllRequestsOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Collection<ItemRequestDtoWithResponses> findAllRequestsOfUser(@RequestHeader("X-Sharer-User-Id")
+                                                                             Long userId) {
         return requestService.findRequestsByUser(userId);
     }
 
     @GetMapping("/{requestId}")
     @ResponseStatus(OK)
-    public Optional<ItemRequestDtoWithResponses> findRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                 @PathVariable Long requestId) {
-        return requestService.findRequestById(requestId, userId);
+    public ItemRequestDtoWithResponses findRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                       @PathVariable Long requestId) {
+        return requestService.findRequestById(requestId, userId).get();
     }
 }

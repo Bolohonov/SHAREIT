@@ -30,7 +30,7 @@ public class Booking {
     /**
      * дата конца бронирования
      */
-
+    @Column(name = "end_date_time")
     private LocalDateTime end;
     /**
      * вещь, которую пользователь бронирует

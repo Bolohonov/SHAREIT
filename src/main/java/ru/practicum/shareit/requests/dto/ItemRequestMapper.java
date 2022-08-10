@@ -7,7 +7,6 @@ import ru.practicum.shareit.requests.ItemRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ItemRequestMapper {
@@ -27,15 +26,18 @@ public class ItemRequestMapper {
         return dtos;
     }
 
-    public static ItemRequestDtoWithResponses toItemRequestDtoWithResponses(ItemRequestDto request,
+    public static ItemRequestDtoWithResponses toItemRequestDtoWithResponses(ItemRequest request,
                 Collection<ItemDtoWithoutComments> items) {
         Collection<ItemRequestDtoWithResponses.Response> responsesList = new ArrayList<>();
-        for (ItemDtoWithoutComments item : items) {
-            responsesList.add(new ItemRequestDtoWithResponses.Response(
-                    item.getId(), item.getName(), item.getDescription()
-            ));
+        if (!items.equals(null)) {
+            for (ItemDtoWithoutComments item : items) {
+                responsesList.add(new ItemRequestDtoWithResponses.Response(
+                        item.getId(), item.getName(), item.getDescription(), item.getAvailable(), item.getRequestId()
+                ));
+            }
         }
         return new ItemRequestDtoWithResponses(
+                request.getId(),
                 request.getDescription(),
                 request.getCreated(),
                 responsesList

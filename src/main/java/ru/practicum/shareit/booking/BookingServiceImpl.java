@@ -142,7 +142,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Collection<BookingDto> getBookingsByOwner(Long userId, State state) {
         checkUser(userId);
-        Collection<ItemDtoWithBooking> itemsOfUser = itemService.getUserItems(userId);
+        Collection<ItemDtoWithBooking> itemsOfUser = itemService.getAllUserItems(userId);
         Collection<Booking> bookings = new ArrayList<>();
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         Predicate function;
@@ -226,5 +226,15 @@ public class BookingServiceImpl implements BookingService {
         if (!userService.getUserById(userId).isPresent()) {
             throw new UserNotFoundException("Пользователь не найден");
         }
+    }
+
+    private void checkParams(Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
+    }
+
+    private Integer getPageNumber(Integer from, Integer size) {
+        return from % size;
     }
 }
