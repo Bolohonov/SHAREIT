@@ -124,8 +124,8 @@ public class ItemServiceImpl implements ItemService {
         checkParams(from, size);
         Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
         PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
-                Sort.by("created").descending());
-        Iterable<Item> items = itemRepository.findAll(pageRequest);
+                Sort.by("id").ascending());
+        Iterable<Item> items = itemRepository.findByOwnerId(userId, pageRequest);
         for (Item i : items) {
             itemsDto.add(itemMapper.toItemDtoWithBooking(i,
                     this.getLastAndNextBookingByItemIdAndUserId(i.getId(), userId)[0],
@@ -153,7 +153,7 @@ public class ItemServiceImpl implements ItemService {
         Collection<ItemDto> itemsDto = new ArrayList<>();
         if (!text.isEmpty()) {
             for (Item i : itemRepository
-                    .search(userId, text)) {
+                    .search(userId, text, from, size)) {
                 itemsDto.add(itemMapper.toItemDto(i,
                         commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
             }

@@ -36,7 +36,7 @@ public class RequestServiceImpl implements RequestService {
     @Transactional(readOnly = true)
     public ItemRequestDto addNewRequest(Long userId, ItemRequest request) {
         checkUser(userId);
-        request.setRequestorId(userId);
+        request.setRequesterId(userId);
         request.setCreated(LocalDateTime.now());
         return itemRequestMapper.toItemRequestDto(itemRequestRepository.save(request));
     }
@@ -68,7 +68,7 @@ public class RequestServiceImpl implements RequestService {
     public Collection<ItemRequestDtoWithResponses> findRequestsByUser(Long userId) {
         checkUser(userId);
         Collection<ItemRequestDtoWithResponses> requestsWithResponses = new ArrayList<>();
-        Collection<ItemRequest> requests = itemRequestRepository.findByRequestorId(userId);
+        Collection<ItemRequest> requests = itemRequestRepository.findByRequesterId(userId);
         for (ItemRequest itemRequest : requests) {
             requestsWithResponses.add(itemRequestMapper.toItemRequestDtoWithResponses(itemRequest,
                     itemService.findItemsByRequest(itemRequest.getId())));

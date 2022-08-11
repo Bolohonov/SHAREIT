@@ -37,7 +37,7 @@ public class ItemRequest {
      * пользователь, создавший запрос
      */
     @Column(name = "requester_id")
-    private Long requestorId;
+    private Long requesterId;
     /**
      * дата и время создания запроса
      */

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.ItemService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -24,11 +25,12 @@ public class BookingMapper {
         );
     }
 
-    public Collection<BookingDto> toBookingDto(Collection<Booking> bookings, Long userId) {
-        return bookings
-                .stream()
-                .map(b -> this.toBookingDto(b,
-                        itemService.findItemById(b.getItemId(), userId).get().getName()))
-                .collect(Collectors.toList());
+    public Collection<BookingDto> toBookingDto(Iterable<Booking> bookings, Long userId) {
+        Collection<BookingDto> dtos = new ArrayList<>();
+        for (Booking booking : bookings) {
+            dtos.add(this.toBookingDto(booking, itemService.findItemById(booking.getItemId(), userId).get().getName()));
+        }
+
+        return dtos;
     }
 }

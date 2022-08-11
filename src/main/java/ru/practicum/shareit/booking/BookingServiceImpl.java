@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -95,44 +97,43 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public Collection<BookingDto> getUserBookings(Long userId, State state) {
+    public Collection<BookingDto> getUserBookings(Long userId, State state, Integer from, Integer size) {
         checkUser(userId);
+        checkParams(from, size);
         Collection<BookingDto> bookingsDto = new ArrayList<>();
-        Collection<Booking> bookings;
+        Collection<Booking> bookingsPage = new ArrayList<>();
+        Iterable<Booking> bookings;
+        PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
+                SORT_BY_START_DESC);;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findBookingByBookerId(userId,
-                        SORT_BY_START_DESC);
+                bookings = bookingRepository.findBookingByBookerId(userId, pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsAfter(userId,
-                        LocalDateTime.now(),
-                        SORT_BY_START_DESC);
+                        LocalDateTime.now(), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case PAST:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsBefore(userId,
-                        LocalDateTime.now(),
-                        SORT_BY_START_DESC);
-
+                        LocalDateTime.now(), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findBookingByBookerIdAndStartIsAfter(userId,
-                        LocalDateTime.now(),
-                        SORT_BY_START_DESC);
+                        LocalDateTime.now(), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingByBookerId(userId,
-                        SORT_BY_START_DESC);
-                bookingsDto = this.filterBookingsByStatusSortByStart(bookings, Status.WAITING, userId);
+                bookings = bookingRepository.findBookingByBookerId(userId, pageRequest);
+                bookings.forEach(bookingsPage::add);
+                bookingsDto = this.filterBookingsByStatusSortByStart(bookingsPage, Status.WAITING, userId);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingByBookerId(userId,
-                        SORT_BY_START_DESC);
-                bookingsDto = this.filterBookingsByStatusSortByStart(bookings, Status.REJECTED, userId);
+                bookings = bookingRepository.findBookingByBookerId(userId, pageRequest);
+                bookings.forEach(bookingsPage::add);
+                bookingsDto = this.filterBookingsByStatusSortByStart(bookingsPage, Status.REJECTED, userId);
                 break;
         }
         return bookingsDto;
@@ -140,17 +141,22 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public Collection<BookingDto> getBookingsByOwner(Long userId, State state) {
+    public Collection<BookingDto> getBookingsByOwner(Long userId, State state, Integer from, Integer size) {
         checkUser(userId);
+        checkParams(from, size);
         Collection<ItemDtoWithBooking> itemsOfUser = itemService.getAllUserItems(userId);
+        Iterable<Booking> bookingsPag;
         Collection<Booking> bookings = new ArrayList<>();
         Collection<BookingDto> bookingsDto = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
+                Sort.by("id").ascending());
         Predicate function;
         if (itemsOfUser.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
         for (ItemDtoWithBooking itemDto : itemsOfUser) {
-            bookings.addAll(bookingRepository.findBookingByItemId(itemDto.getId()));
+            bookingsPag = bookingRepository.findBookingByItemId(itemDto.getId(), pageRequest);
+            bookingsPag.forEach(bookings::add);
         }
         switch (state) {
             case ALL:

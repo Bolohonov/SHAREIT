@@ -7,5 +7,5 @@ import ru.practicum.shareit.requests.ItemRequest;
 import java.util.Collection;
 
 public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> {
-    Collection<ItemRequest> findByRequestorId(Long userId);
+    Collection<ItemRequest> findByRequesterId(Long userId);
 }
