@@ -8,7 +8,6 @@ import ru.practicum.shareit.requests.dto.ItemRequestDtoWithResponses;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.HttpStatus.OK;
