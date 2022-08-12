@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
 import lombok.*;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Status;
 
 import java.io.Serializable;
