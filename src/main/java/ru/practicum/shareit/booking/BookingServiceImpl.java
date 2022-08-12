@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -104,7 +103,8 @@ public class BookingServiceImpl implements BookingService {
         Collection<Booking> bookingsPage = new ArrayList<>();
         Iterable<Booking> bookings;
         PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
-                SORT_BY_START_DESC);;
+                SORT_BY_START_DESC);
+        ;
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findBookingByBookerId(userId, pageRequest);

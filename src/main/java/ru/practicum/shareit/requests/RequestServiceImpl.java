@@ -58,8 +58,8 @@ public class RequestServiceImpl implements RequestService {
         ItemRequest itemRequest = itemRequestRepository
                 .findById(requestId)
                 .orElseThrow(() -> {
-            throw new ResponseStatusException(NOT_FOUND);
-        });
+                    throw new ResponseStatusException(NOT_FOUND);
+                });
         return Optional.ofNullable(itemRequestMapper.toItemRequestDtoWithResponses(itemRequest,
                 itemService.findItemsByRequest(requestId)));
     }

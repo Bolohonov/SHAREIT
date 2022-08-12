@@ -27,7 +27,7 @@ public class ItemRequestMapper {
     }
 
     public static ItemRequestDtoWithResponses toItemRequestDtoWithResponses(ItemRequest request,
-                Collection<ItemDtoWithoutComments> items) {
+                                                                            Collection<ItemDtoWithoutComments> items) {
         Collection<ItemRequestDtoWithResponses.Response> responsesList = new ArrayList<>();
         if (!items.equals(null)) {
             for (ItemDtoWithoutComments item : items) {

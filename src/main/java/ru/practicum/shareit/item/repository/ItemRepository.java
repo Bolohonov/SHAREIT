@@ -11,6 +11,7 @@ import java.util.Collection;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Collection<Item> findByOwnerId(Long userId);
+
     Page<Item> findByOwnerId(Long userId, Pageable pageable);
 
     Collection<Item> findByRequestId(Long requestId);

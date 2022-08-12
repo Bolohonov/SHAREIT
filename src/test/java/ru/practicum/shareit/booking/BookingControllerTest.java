@@ -119,7 +119,7 @@ class BookingControllerTest {
                 .thenReturn(Optional.of(bookingDto));
 
         mvc.perform(get("/bookings/1")
-                .header("X-Sharer-User-Id", 1L))
+                        .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start[0]", is(bookingDto.getStart().getYear())))
@@ -142,7 +142,7 @@ class BookingControllerTest {
                 .thenReturn(List.of(bookingDto));
 
         mvc.perform(get("/bookings")
-                .header("X-Sharer-User-Id", 1L))
+                        .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(bookingDto.getId()), Long.class))
@@ -164,7 +164,7 @@ class BookingControllerTest {
                 .thenReturn(List.of(bookingDto));
 
         mvc.perform(get("/bookings/owner")
-                .header("X-Sharer-User-Id", 1L))
+                        .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(bookingDto.getId()), Long.class))

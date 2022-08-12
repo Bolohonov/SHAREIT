@@ -56,7 +56,7 @@ public class ItemJPATest {
         ReflectionTestUtils.setField(thirdItem, "ownerId", 2L);
         itemRepository.save(thirdItem);
 
-        Iterable<Item> foundItems = itemRepository.search(1L,"оТВер", PageRequest.of(0, 10));
+        Iterable<Item> foundItems = itemRepository.search(1L, "оТВер", PageRequest.of(0, 10));
         List<Item> pageList = new ArrayList<>();
         foundItems.forEach(pageList::add);
         assertEquals(pageList.size(), 1);

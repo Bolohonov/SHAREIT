@@ -108,7 +108,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
-                    throw new ItemNotFoundException("Вещь не найдена");
+            throw new ItemNotFoundException("Вещь не найдена");
         });
 
         return ofNullable(itemMapper.toItemDtoWithBooking(item,
