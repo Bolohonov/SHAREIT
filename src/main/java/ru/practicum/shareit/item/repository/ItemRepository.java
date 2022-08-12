@@ -15,9 +15,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Collection<Item> findByRequestId(Long requestId);
 
-    @Query(value = "select * from items as i " +
+    @Query("select i from Item as i " +
             "where (upper(i.name) like upper(concat('%', ?2, '%')) " +
             " or upper(i.description) like upper(concat('%', ?2, '%'))) " +
-            " and (i.owner_id = ?1 or i.available = TRUE) order by i.id offset ?3 limit ?4", nativeQuery = true)
-    Collection<Item> search(Long userId, String text, Integer from, Integer size);
+            " and (i.ownerId = ?1 or i.available = TRUE) ")
+    Page<Item> search(Long userId, String text, Pageable pageable);
 }

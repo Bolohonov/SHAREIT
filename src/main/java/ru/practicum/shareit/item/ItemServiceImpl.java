@@ -151,9 +151,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<ItemDto> search(Long userId, String text, Integer from, Integer size) {
         Collection<ItemDto> itemsDto = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
+                Sort.by("id").ascending());
         if (!text.isEmpty()) {
             for (Item i : itemRepository
-                    .search(userId, text, from, size)) {
+                    .search(userId, text, pageRequest)) {
                 itemsDto.add(itemMapper.toItemDto(i,
                         commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
             }
