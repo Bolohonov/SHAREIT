@@ -167,7 +167,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case PAST:
                 function = (Predicate<Booking>) b -> b.getEnd().isBefore(LocalDateTime.now());
-                bookingsDto = this.filterBookingsAndSortByTime(bookings, function, userId);
+                bookingsDto = this.filterBookingsSortByStart(bookings, userId);
                 break;
             case FUTURE:
                 function = (Predicate<Booking>) b -> b.getStart().isAfter(LocalDateTime.now());
@@ -210,6 +210,16 @@ public class BookingServiceImpl implements BookingService {
         return bookings
                 .stream()
                 .filter((b) -> b.getStatus().equals(status))
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
+                .map(b -> bookingMapper.toBookingDto(b,
+                        itemService.findItemById(b.getItemId(), userId).get().getName()))
+                .collect(Collectors.toList());
+    }
+
+    private Collection<BookingDto> filterBookingsSortByStart(Collection<Booking> bookings,
+                                                                     Long userId) {
+        return bookings
+                .stream()
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .map(b -> bookingMapper.toBookingDto(b,
                         itemService.findItemById(b.getItemId(), userId).get().getName()))
