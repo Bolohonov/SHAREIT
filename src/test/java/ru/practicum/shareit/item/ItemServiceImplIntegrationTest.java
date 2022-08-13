@@ -32,7 +32,7 @@ class ItemServiceImplIntegrationTest {
     @Test
     void getAllUserItems() {
         User user = makeUser("Ivan", "ivan@yandex.ru");
-        User userSecond = makeUser( "Ivan2", "ivan2@yandex.ru");
+        User userSecond = makeUser("Ivan2", "ivan2@yandex.ru");
         userservice.saveUser(user);
         userservice.saveUser(userSecond);
         Item firstItem = makeItem("Отвертка", "Для откручивания", true, user.getId());
