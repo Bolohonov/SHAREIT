@@ -469,7 +469,7 @@ class BookingServiceImplTest {
                 new ItemDtoWithBooking.Booking(bookingNext.getId(), userBooker.getId()), Collections.emptyList());
         PageRequest pageRequest = PageRequest.of(0, 10,
                 Sort.by(Sort.Direction.DESC, "start"));
-        Clock minuteTickingClock = Clock.tickMinutes(ZoneId.systemDefault());
+        Clock secondTickingClock = Clock.tickSeconds(ZoneId.systemDefault());
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookingsDto.add(bookingDto);
         List<Booking> bookingsList = new ArrayList<>();
@@ -480,7 +480,7 @@ class BookingServiceImplTest {
                 .thenReturn(Optional.of(userBooker));
         Mockito
                 .when(bookingRepository.findBookingByBookerIdAndEndIsBefore(userBooker.getId(),
-                        LocalDateTime.now(minuteTickingClock), pageRequest))
+                        LocalDateTime.now(secondTickingClock), pageRequest))
                 .thenReturn(bookings);
         Mockito
                 .when(bookingMapper.toBookingDto(anyIterable(), anyLong()))
@@ -514,7 +514,7 @@ class BookingServiceImplTest {
                 new ItemDtoWithBooking.Booking(bookingNext.getId(), userBooker.getId()), Collections.emptyList());
         PageRequest pageRequest = PageRequest.of(0, 10,
                 Sort.by(Sort.Direction.DESC, "start"));
-        Clock minuteTickingClock = Clock.tickMinutes(ZoneId.systemDefault());
+        Clock secondTickingClock = Clock.tickSeconds(ZoneId.systemDefault());
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         bookingsDto.add(bookingDto);
         bookingsDto.add(bookingDtoNext);
@@ -527,7 +527,7 @@ class BookingServiceImplTest {
                 .thenReturn(Optional.of(userBooker));
         Mockito
                 .when(bookingRepository.findBookingByBookerIdAndStartIsAfter(userBooker.getId(),
-                        LocalDateTime.now(minuteTickingClock), pageRequest))
+                        LocalDateTime.now(secondTickingClock), pageRequest))
                 .thenReturn(bookings);
         Mockito
                 .when(bookingMapper.toBookingDto(anyIterable(), anyLong()))

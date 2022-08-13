@@ -103,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
         Iterable<Booking> bookings;
         PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
                 SORT_BY_START_DESC);
-        Clock minuteTickingClock = Clock.tickMinutes(ZoneId.systemDefault());
+        Clock secondTickingClock = Clock.tickSeconds(ZoneId.systemDefault());
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findBookingByBookerId(userId, pageRequest);
@@ -116,12 +116,12 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case PAST:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsBefore(userId,
-                        LocalDateTime.now(), pageRequest);
+                        LocalDateTime.now(secondTickingClock), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findBookingByBookerIdAndStartIsAfter(userId,
-                        LocalDateTime.now(minuteTickingClock), pageRequest);
+                        LocalDateTime.now(secondTickingClock), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case WAITING:
