@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemService;
@@ -36,7 +35,6 @@ class RequestServiceImplIntegrationTest {
         userservice.saveUser(user);
         userservice.saveUser(userSecond);
         userservice.saveUser(userThird);
-
         Item firstItem = makeItem("Отвертка", "Для откручивания", true, 1L);
         itemService.addNewItem(user.getId(), firstItem);
         Item secondItem = makeItem("Дрель", "Для вкручивания", true, 2L);
@@ -45,7 +43,6 @@ class RequestServiceImplIntegrationTest {
         itemService.addNewItem(userSecond.getId(), thirdItem);
         Item forthItem = makeItem("Еще отвертка", "Для вкручивания", true, 1L);
         itemService.addNewItem(user.getId(), forthItem);
-
         ItemRequest itemRequest = makeItemRequest("Нужен шуруповерт", user.getId(),
                 LocalDateTime.of(2022, 8, 11, 10, 10));
         requestService.addNewRequest(user.getId(), itemRequest);

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -27,7 +26,6 @@ class UserServiceImplIntegrationTest {
         User userSecond = makeUser("Ivan2", "ivan2@yandex.ru");
         userservice.saveUser(user);
         userservice.saveUser(userSecond);
-
         TypedQuery<User> query = em.createQuery("Select u from User u where u.id = :id", User.class);
         User userToCompare = query.setParameter("id", 1L).getSingleResult();
         User userToCompareSecond = query.setParameter("id", 2L).getSingleResult();

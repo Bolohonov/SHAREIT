@@ -23,7 +23,7 @@ class UserServiceImplTest {
     @Test
     @SneakyThrows
     void testSaveUserSuccess() {
-        User user = makeUser(1L,"Ivan", "ivan@yandex.ru");
+        User user = makeUser(1L, "Ivan", "ivan@yandex.ru");
         UserServiceImpl userService = new UserServiceImpl(userRepository);
         Mockito
                 .when(userRepository.save(any(User.class)))
@@ -45,7 +45,7 @@ class UserServiceImplTest {
     @Test
     @SneakyThrows
     void testGetUserByIdSuccess() {
-        User user = makeUser(1L,"Ivan", "ivan@yandex.ru");
+        User user = makeUser(1L, "Ivan", "ivan@yandex.ru");
         UserServiceImpl userService = new UserServiceImpl(userRepository);
         Mockito
                 .when(userRepository.findById(anyLong()))
@@ -60,7 +60,7 @@ class UserServiceImplTest {
     @SneakyThrows
     void testUpdateUserSuccess() {
         UserServiceImpl userService = new UserServiceImpl(userRepository);
-        User userUpdated = makeUser(1L,"IvanUpdated", "ivan@yandex.ru");
+        User userUpdated = makeUser(1L, "IvanUpdated", "ivan@yandex.ru");
         Mockito
                 .when(userRepository.save(any(User.class)))
                 .thenReturn(userUpdated);
@@ -72,7 +72,7 @@ class UserServiceImplTest {
 
     @Test
     void testGetAllUsersSuccess() {
-        User userFirst = makeUser(1L,"Ivan", "ivan@yandex.ru");
+        User userFirst = makeUser(1L, "Ivan", "ivan@yandex.ru");
         User userSecond = makeUser(2L, "Ivan2", "ivan2@yandex.ru");
         UserServiceImpl userService = new UserServiceImpl(userRepository);
         List<User> listToCompare = new ArrayList<>();

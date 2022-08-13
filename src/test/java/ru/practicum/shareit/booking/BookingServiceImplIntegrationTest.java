@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -40,7 +38,6 @@ class BookingServiceImplIntegrationTest {
         userservice.saveUser(user);
         userservice.saveUser(userSecond);
         userservice.saveUser(userThird);
-
         Item firstItem = makeItem("Отвертка", "Для откручивания", true, 1L);
         itemService.addNewItem(user.getId(), firstItem);
         Item secondItem = makeItem("Дрель", "Для вкручивания", true, 2L);
@@ -49,17 +46,14 @@ class BookingServiceImplIntegrationTest {
         itemService.addNewItem(userSecond.getId(), thirdItem);
         Item forthItem = makeItem("Еще отвертка", "Для вкручивания", true, 1L);
         itemService.addNewItem(user.getId(), forthItem);
-
         Booking firstBooking = makeBooking(LocalDateTime.of(2023, 8, 10, 10, 10),
                 LocalDateTime.of(2023, 8, 11, 10, 10),
                 firstItem.getId(), userSecond.getId(), Status.WAITING);
         Booking secondBooking = makeBooking(LocalDateTime.of(2023, 8, 10, 10, 10),
                 LocalDateTime.of(2023, 8, 11, 10, 10),
                 forthItem.getId(), userSecond.getId(), Status.WAITING);
-
         bookingService.addNew(userSecond.getId(), firstBooking);
         bookingService.addNew(userSecond.getId(), secondBooking);
-
         Optional<BookingDto> firstBookingDto = bookingService.approveOrRejectBooking(user.getId(),
                 firstBooking.getId(), true);
         Optional<BookingDto> secondBookingDto = bookingService.approveOrRejectBooking(user.getId(),

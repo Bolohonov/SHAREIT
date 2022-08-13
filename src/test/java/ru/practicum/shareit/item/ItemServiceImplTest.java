@@ -54,10 +54,10 @@ class ItemServiceImplTest {
     @Test
     @SneakyThrows
     void testCreateItemSuccess() {
-        User user = makeUser(1L,"Ivan", "ivan@yandex.ru");
-        Item firstItem = makeItem(1L,"Отвертка", "Для откручивания",
+        User user = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        Item firstItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, 1L);
-        ItemDto dtoToCompare = makeItemDto(1L,"Отвертка",
+        ItemDto dtoToCompare = makeItemDto(1L, "Отвертка",
                 "Для откручивания", true, null, Collections.emptyList());
         Mockito
                 .when(userService.getUserById(anyLong()))
@@ -76,7 +76,7 @@ class ItemServiceImplTest {
 
     @Test
     void testCreateItemUserNotFoundException() {
-        Item firstItem = makeItem(1L,"Отвертка", "Для откручивания",
+        Item firstItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, 1L);
         assertThrows(UserNotFoundException.class, () ->
                 getItemService().addNewItem(1L, firstItem));
@@ -85,21 +85,19 @@ class ItemServiceImplTest {
     @Test
     @SneakyThrows
     void testUpdateItemSuccess() {
-        User user = makeUser(1L,"Ivan", "ivan@yandex.ru");
-        Item firstItem = makeItem(1L,"Отвертка", "Для откручивания",
+        User user = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        Item firstItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, user.getId());
-        Item updatedItem = makeItem(1L,"ОтверткаНовая", "Для откручивания",
+        Item updatedItem = makeItem(1L, "ОтверткаНовая", "Для откручивания",
                 true, user.getId());
-        ItemDto dtoToCompare = makeItemDto(1L,"ОтверткаНовая",
+        ItemDto dtoToCompare = makeItemDto(1L, "ОтверткаНовая",
                 "Для откручивания", true, null, Collections.emptyList());
-
         Mockito
                 .when(itemRepository.save(any(Item.class)))
                 .thenReturn(updatedItem);
         Mockito
                 .when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(firstItem));
-
         ItemDto itemDtoResult = getItemService().updateItem(user.getId(), updatedItem).get();
         assertEquals(itemDtoResult, dtoToCompare);
     }
@@ -107,15 +105,14 @@ class ItemServiceImplTest {
     @Test
     @SneakyThrows
     void testUpdateItemAccessToItemException() {
-        User userOwner = makeUser(1L,"Ivan", "ivan@yandex.ru");
-        User userWrong = makeUser(2L,"Ivan2", "ivan2@yandex.ru");
-        Item firstItem = makeItem(1L,"Отвертка", "Для откручивания",
+        User userOwner = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        User userWrong = makeUser(2L, "Ivan2", "ivan2@yandex.ru");
+        Item firstItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, userOwner.getId());
-        Item updatedItem = makeItem(1L,"ОтверткаНовая", "Для откручивания",
+        Item updatedItem = makeItem(1L, "ОтверткаНовая", "Для откручивания",
                 true, userOwner.getId());
-        ItemDto dtoToCompare = makeItemDto(1L,"ОтверткаНовая",
+        ItemDto dtoToCompare = makeItemDto(1L, "ОтверткаНовая",
                 "Для откручивания", true, null, Collections.emptyList());
-
         Mockito
                 .when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(firstItem));
@@ -126,8 +123,8 @@ class ItemServiceImplTest {
     @Test
     @SneakyThrows
     void testGetItemByIdSuccess() {
-        User user = makeUser(1L,"Ivan", "ivan@yandex.ru");
-        Item firstItem = makeItem(1L,"Отвертка", "Для откручивания",
+        User user = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        Item firstItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, user.getId());
         ItemDtoWithBooking dto = makeItemDtoWithBooking(1L, "Отвертка", "Для откручивания",
                 true,
@@ -135,14 +132,13 @@ class ItemServiceImplTest {
                 null,
                 null,
                 Collections.emptyList()
-                );
+        );
         Mockito
                 .when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(firstItem));
         Mockito
                 .when(itemMapper.toItemDtoWithBooking(any(Item.class), any(), any(), anyCollection()))
                 .thenReturn(dto);
-
         ItemDtoWithBooking itemDtoResult = getItemService().findItemById(firstItem.getId(), user.getId()).get();
         assertEquals(itemDtoResult.getId(), firstItem.getId());
         assertEquals(itemDtoResult.getName(), firstItem.getName());
@@ -158,7 +154,7 @@ class ItemServiceImplTest {
 
     @Test
     void testGetItemByIdItemNotFoundException() {
-        User userOwner = makeUser(1L,"Ivan", "ivan@yandex.ru");
+        User userOwner = makeUser(1L, "Ivan", "ivan@yandex.ru");
         Mockito
                 .when(userService.getUserById(anyLong()))
                 .thenReturn(Optional.ofNullable(userOwner));
@@ -168,24 +164,22 @@ class ItemServiceImplTest {
 
     @Test
     void testGetAllUserItems() {
-        User userOwner = makeUser(1L,"Ivan", "ivan@yandex.ru");
-        User userBooker = makeUser(2L,"Pasha", "pasha@yandex.ru");
-        Item firstItem = makeItem(1L,"Отвертка", "Для откручивания",
+        User userOwner = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        User userBooker = makeUser(2L, "Pasha", "pasha@yandex.ru");
+        Item firstItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, userOwner.getId());
-        Item secondItem = makeItem(1L,"Отвертка", "Для откручивания",
+        Item secondItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, userOwner.getId());
-        ItemDtoWithBooking firstDtoItem = makeItemDtoWithBooking(1L,"Отвертка", "Для откручивания",
+        ItemDtoWithBooking firstDtoItem = makeItemDtoWithBooking(1L, "Отвертка", "Для откручивания",
                 true, null, null,
                 null, Collections.emptyList());
-        ItemDtoWithBooking secondDtoItem = makeItemDtoWithBooking(1L,"Отвертка", "Для откручивания",
+        ItemDtoWithBooking secondDtoItem = makeItemDtoWithBooking(1L, "Отвертка", "Для откручивания",
                 true, null, null,
                 null, Collections.emptyList());
         List<Item> itemsList = new ArrayList<>();
         itemsList.add(firstItem);
         itemsList.add(secondItem);
         Page<Item> items = new PageImpl<>(itemsList);
-
-
         Mockito
                 .when(userService.getUserById(anyLong()))
                 .thenReturn(Optional.of(userOwner));
@@ -201,12 +195,10 @@ class ItemServiceImplTest {
                 .when(itemMapper.toItemDtoWithBooking(secondItem, Optional.empty(), Optional.empty(),
                         Collections.emptyList()))
                 .thenReturn(secondDtoItem);
-
-
         Collection<ItemDtoWithBooking> itemsResult = getItemService().getUserItems(1L, 0, 10);
         List<ItemDtoWithBooking> result = itemsResult.stream()
                 .sorted(Comparator.comparingLong(i -> i.getId()))
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
         assertEquals(result.get(0), firstDtoItem);
         assertEquals(result.get(1), secondDtoItem);
     }
@@ -214,16 +206,16 @@ class ItemServiceImplTest {
     @Test
     @SneakyThrows
     void testAddCommentSuccess() {
-        User userOwner = makeUser(1L,"Ivan", "ivan@yandex.ru");
-        User userBooker = makeUser(2L,"Pasha", "pasha@yandex.ru");
-        Item firstItem = makeItem(1L,"Отвертка", "Для откручивания",
+        User userOwner = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        User userBooker = makeUser(2L, "Pasha", "pasha@yandex.ru");
+        Item firstItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, userOwner.getId());
-        Item secondItem = makeItem(1L,"Отвертка", "Для откручивания",
+        Item secondItem = makeItem(1L, "Отвертка", "Для откручивания",
                 true, userOwner.getId());
-        ItemDtoWithBooking firstDtoItem = makeItemDtoWithBooking(1L,"Отвертка", "Для откручивания",
+        ItemDtoWithBooking firstDtoItem = makeItemDtoWithBooking(1L, "Отвертка", "Для откручивания",
                 true, null, null,
                 null, Collections.emptyList());
-        ItemDtoWithBooking secondDtoItem = makeItemDtoWithBooking(1L,"Отвертка", "Для откручивания",
+        ItemDtoWithBooking secondDtoItem = makeItemDtoWithBooking(1L, "Отвертка", "Для откручивания",
                 true, null, null,
                 null, Collections.emptyList());
         Booking booking = makeBooking(1L, LocalDateTime.of(2022, 8, 10, 10, 0),
@@ -235,7 +227,6 @@ class ItemServiceImplTest {
                 comment.getItemId(), comment.getAuthorId(), comment.getCreated(), "Pasha");
         List<Booking> listBooking = new ArrayList<>();
         listBooking.add(booking);
-
         Mockito
                 .when(userService.getUserById(anyLong()))
                 .thenReturn(Optional.ofNullable(userBooker));
@@ -245,7 +236,6 @@ class ItemServiceImplTest {
         Mockito
                 .when(commentRepository.save(any()))
                 .thenReturn(comment);
-
         CommentDto result = getItemService().addComment(userBooker.getId(), firstItem.getId(), comment);
         assertEquals(result.getId(), commentDto.getId());
         assertEquals(result.getText(), commentDto.getText());
@@ -276,13 +266,13 @@ class ItemServiceImplTest {
     }
 
     private ItemDto makeItemDto(Long id, String name, String description, Boolean available,
-                             Long requestId, Collection<Comment> comments) {
+                                Long requestId, Collection<Comment> comments) {
         ItemDto item = new ItemDto(id, name, description, available, requestId, comments);
         return item;
     }
 
     private ItemDtoWithBooking makeItemDtoWithBooking(Long id, String name, String description, Boolean available,
-                                Long request, ItemDtoWithBooking.Booking lastBooking,
+                                                      Long request, ItemDtoWithBooking.Booking lastBooking,
                                                       ItemDtoWithBooking.Booking nextBooking,
                                                       Collection<CommentDtoForItem> comments) {
         ItemDtoWithBooking item = new ItemDtoWithBooking(id, name, description, available, request,
