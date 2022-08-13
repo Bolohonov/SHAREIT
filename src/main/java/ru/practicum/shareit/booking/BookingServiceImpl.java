@@ -19,7 +19,9 @@ import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -61,9 +63,6 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getStatus().equals(Status.APPROVED)) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
-        if (!userService.getUserById(userId).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
         if (!itemService.checkOwner(userId, booking.getItemId())) {
             throw new AccessToItemException("У пользователя нет доступа к данной функции!");
         }
@@ -104,6 +103,7 @@ public class BookingServiceImpl implements BookingService {
         Iterable<Booking> bookings;
         PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
                 SORT_BY_START_DESC);
+        Clock minuteTickingClock = Clock.tickMinutes(ZoneId.systemDefault());
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findBookingByBookerId(userId, pageRequest);
@@ -111,17 +111,17 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case CURRENT:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsAfter(userId,
-                        LocalDateTime.now(), pageRequest);
+                        LocalDateTime.now(minuteTickingClock), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case PAST:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsBefore(userId,
-                        LocalDateTime.now(), pageRequest);
+                        LocalDateTime.now(minuteTickingClock), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findBookingByBookerIdAndStartIsAfter(userId,
-                        LocalDateTime.now(), pageRequest);
+                        LocalDateTime.now(minuteTickingClock), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case WAITING:
