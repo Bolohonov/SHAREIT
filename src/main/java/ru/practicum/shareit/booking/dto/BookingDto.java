@@ -39,7 +39,7 @@ public class BookingDto implements Serializable {
     @ToString
     @Getter
     @Setter
-    static class Booker implements Serializable {
+    public static class Booker implements Serializable {
         private Long id;
     }
 
@@ -47,7 +47,7 @@ public class BookingDto implements Serializable {
     @ToString
     @Getter
     @Setter
-    static class Item implements Serializable {
+    public static class Item implements Serializable {
         private Long id;
         private String name;
     }

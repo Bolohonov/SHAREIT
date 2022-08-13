@@ -104,7 +104,6 @@ public class BookingServiceImpl implements BookingService {
         Iterable<Booking> bookings;
         PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
                 SORT_BY_START_DESC);
-        ;
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findBookingByBookerId(userId, pageRequest);
@@ -185,14 +184,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateBooking(Long userId, Booking booking) {
+        if (!userService.getUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
         if (!itemService.findItemById(booking.getItemId(), userId).isPresent()) {
             throw new ItemNotFoundException("Вещь не найдена");
         }
         if (itemService.checkOwner(userId, booking.getItemId())) {
             throw new ResponseStatusException(NOT_FOUND);
-        }
-        if (!userService.getUserById(userId).isPresent()) {
-            throw new UserNotFoundException("Пользователь не найден");
         }
         if (itemService.findItemById(booking.getItemId(), userId).get().getAvailable().equals(Boolean.FALSE)) {
             throw new ResponseStatusException(BAD_REQUEST);

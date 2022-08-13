@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 
 @AllArgsConstructor
+@Builder
 @Data
 public class ItemRequestDtoWithResponses {
     /**
@@ -25,10 +26,11 @@ public class ItemRequestDtoWithResponses {
     private Collection<Response> items;
 
     @AllArgsConstructor
+    @Builder
     @ToString
     @Getter
     @Setter
-    static class Response implements Serializable {
+    public static class Response implements Serializable {
         /**
          * уникальный идентификатор вещи
          */
