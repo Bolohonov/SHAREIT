@@ -134,6 +134,9 @@ class ItemServiceImplTest {
                 Collections.emptyList()
         );
         Mockito
+                .when(userService.getUserById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+        Mockito
                 .when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(firstItem));
         Mockito

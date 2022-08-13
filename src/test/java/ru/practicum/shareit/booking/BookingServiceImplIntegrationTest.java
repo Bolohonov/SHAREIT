@@ -58,16 +58,15 @@ class BookingServiceImplIntegrationTest {
                 firstBooking.getId(), true);
         Optional<BookingDto> secondBookingDto = bookingService.approveOrRejectBooking(user.getId(),
                 secondBooking.getId(), false);
-
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.id = :id", Booking.class);
         Booking firstBookingToCompare = query.setParameter("id", firstBooking.getId()).getSingleResult();
         Booking secondBookingToCompare = query.setParameter("id", secondBooking.getId()).getSingleResult();
-
         assertEquals(firstBooking.getStatus(), firstBookingToCompare.getStatus());
         assertEquals(secondBooking.getStatus(), secondBookingToCompare.getStatus());
         assertEquals(firstBooking.getStatus(), Status.APPROVED);
         assertEquals(secondBooking.getStatus(), Status.REJECTED);
     }
+
 
     private Booking makeBooking(LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId,
                                 Status status) {

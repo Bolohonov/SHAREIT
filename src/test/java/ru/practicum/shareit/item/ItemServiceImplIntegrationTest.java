@@ -32,20 +32,22 @@ class ItemServiceImplIntegrationTest {
     @Test
     void getAllUserItems() {
         User user = makeUser("Ivan", "ivan@yandex.ru");
-        User userSecond = makeUser("Ivan2", "ivan2@yandex.ru");
+        User userSecond = makeUser( "Ivan2", "ivan2@yandex.ru");
         userservice.saveUser(user);
         userservice.saveUser(userSecond);
-        Item firstItem = makeItem("Отвертка", "Для откручивания", true, 1L);
+        Item firstItem = makeItem("Отвертка", "Для откручивания", true, user.getId());
         itemService.addNewItem(user.getId(), firstItem);
-        Item secondItem = makeItem("Дрель", "Для вкручивания", true, 2L);
+        Item secondItem = makeItem("Дрель", "Для вкручивания", true,
+                userSecond.getId());
         itemService.addNewItem(userSecond.getId(), secondItem);
-        Item thirdItem = makeItem("Еще отвертка", "Для вкручивания", true, 2L);
+        Item thirdItem = makeItem("Еще отвертка", "Для вкручивания", true,
+                userSecond.getId());
         itemService.addNewItem(userSecond.getId(), thirdItem);
-        Item forthItem = makeItem("Еще отвертка", "Для вкручивания", true, 1L);
+        Item forthItem = makeItem("Еще отвертка", "Для вкручивания", true, user.getId());
         itemService.addNewItem(user.getId(), forthItem);
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.ownerId = :ownerId", Item.class);
-        Collection<ItemDtoWithBooking> userItems = itemService.getAllUserItems(firstItem.getId());
-        Collection<Item> userItemsToCompare = query.setParameter("ownerId", firstItem.getOwnerId()).getResultList();
+        Collection<ItemDtoWithBooking> userItems = itemService.getAllUserItems(user.getId());
+        Collection<Item> userItemsToCompare = query.setParameter("ownerId", user.getId()).getResultList();
         List<ItemDtoWithBooking> userItemsList = userItems.stream()
                 .sorted(Comparator.comparingLong(i -> i.getId()))
                 .collect(Collectors.toList());
