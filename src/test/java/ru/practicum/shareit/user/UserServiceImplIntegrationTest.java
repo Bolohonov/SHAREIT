@@ -27,8 +27,8 @@ class UserServiceImplIntegrationTest {
         userservice.saveUser(user);
         userservice.saveUser(userSecond);
         TypedQuery<User> query = em.createQuery("Select u from User u where u.id = :id", User.class);
-        User userToCompare = query.setParameter("id", 1L).getSingleResult();
-        User userToCompareSecond = query.setParameter("id", 2L).getSingleResult();
+        User userToCompare = query.setParameter("id", user.getId()).getSingleResult();
+        User userToCompareSecond = query.setParameter("id", userSecond.getId()).getSingleResult();
         assertEquals(user, userToCompare);
         assertEquals(userSecond, userToCompareSecond);
         assertEquals(user.getName(), "Ivan");
