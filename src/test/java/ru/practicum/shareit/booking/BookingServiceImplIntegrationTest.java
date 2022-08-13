@@ -76,7 +76,7 @@ class BookingServiceImplIntegrationTest {
     @Test
     @Transactional
     void getBookingsByOwnerStateCURRENT() {
-        LocalDateTime start = LocalDateTime.now().plusDays(1);
+        LocalDateTime start = LocalDateTime.now().minusDays(1);
         LocalDateTime end = LocalDateTime.now().plusDays(4);
         User user = makeUser("Ivan", "ivan@yandex.ru");
         User userSecond = makeUser("Ivan2", "ivan2@yandex.ru");
@@ -94,8 +94,8 @@ class BookingServiceImplIntegrationTest {
         itemService.addNewItem(user.getId(), forthItem);
         Booking firstBooking = makeBooking(start, end, firstItem.getId(), userSecond.getId(), Status.WAITING);
         Booking secondBooking = makeBooking(start, end, forthItem.getId(), userSecond.getId(), Status.WAITING);
-        bookingService.addNew(userSecond.getId(), firstBooking);
-        bookingService.addNew(userSecond.getId(), secondBooking);
+        bookingRepository.save(firstBooking);
+        bookingRepository.save(secondBooking);
         BookingDto firstBookingDto = makeBookingDto(firstBooking.getId(), start, end,
                 firstItem.getId(), userSecond.getId(), Status.WAITING, firstItem.getName());
         BookingDto secondBookingDto = makeBookingDto(secondBooking.getId(), start, end, secondItem.getId(),
@@ -218,8 +218,81 @@ class BookingServiceImplIntegrationTest {
                 result.stream().collect(Collectors.toList()).get(0).getId());
         assertEquals(dtos.stream().collect(Collectors.toList()).get(1).getId(),
                 result.stream().collect(Collectors.toList()).get(1).getId());
+    }
 
+    @Test
+    @Transactional
+    void getBookingsByOwnerStateWaiting() {
+        LocalDateTime start = LocalDateTime.now().plusDays(2);
+        LocalDateTime end = LocalDateTime.now().plusDays(4);
+        User user = makeUser("Ivan", "ivan@yandex.ru");
+        User userSecond = makeUser("Ivan2", "ivan2@yandex.ru");
+        User userThird = makeUser("Ivan3", "ivan3@yandex.ru");
+        userservice.saveUser(user);
+        userservice.saveUser(userSecond);
+        userservice.saveUser(userThird);
+        Item firstItem = makeItem("Отвертка", "Для откручивания", true, 1L);
+        itemService.addNewItem(user.getId(), firstItem);
+        Item secondItem = makeItem("Дрель", "Для вкручивания", true, 2L);
+        itemService.addNewItem(userSecond.getId(), secondItem);
+        Item thirdItem = makeItem("Еще отвертка", "Для вкручивания", true, 2L);
+        itemService.addNewItem(userSecond.getId(), thirdItem);
+        Item forthItem = makeItem("Еще отвертка", "Для вкручивания", true, 1L);
+        itemService.addNewItem(user.getId(), forthItem);
+        Booking firstBooking = makeBooking(start, end, firstItem.getId(), userSecond.getId(), Status.WAITING);
+        Booking secondBooking = makeBooking(start, end, forthItem.getId(), userSecond.getId(), Status.WAITING);
+        bookingService.addNew(userSecond.getId(), firstBooking);
+        bookingService.addNew(userSecond.getId(), secondBooking);
+        BookingDto firstBookingDto = makeBookingDto(firstBooking.getId(), start, end,
+                firstItem.getId(), userSecond.getId(), Status.WAITING, firstItem.getName());
+        BookingDto secondBookingDto = makeBookingDto(secondBooking.getId(), start, end, secondItem.getId(),
+                userSecond.getId(), Status.WAITING, secondItem.getName());
+        Collection<BookingDto> dtos = new ArrayList<>();
+        dtos.add(firstBookingDto);
+        dtos.add(secondBookingDto);
+        Collection<BookingDto> result = bookingService.getBookingsByOwner(user.getId(), State.WAITING, 0, 10);
+        assertEquals(dtos.stream().collect(Collectors.toList()).get(0).getId(),
+                result.stream().collect(Collectors.toList()).get(0).getId());
+        assertEquals(dtos.stream().collect(Collectors.toList()).get(1).getId(),
+                result.stream().collect(Collectors.toList()).get(1).getId());
+    }
 
+    @Test
+    @Transactional
+    void getBookingsByOwnerStateRejected() {
+        LocalDateTime start = LocalDateTime.now().plusDays(2);
+        LocalDateTime end = LocalDateTime.now().plusDays(4);
+        User user = makeUser("Ivan", "ivan@yandex.ru");
+        User userSecond = makeUser("Ivan2", "ivan2@yandex.ru");
+        User userThird = makeUser("Ivan3", "ivan3@yandex.ru");
+        userservice.saveUser(user);
+        userservice.saveUser(userSecond);
+        userservice.saveUser(userThird);
+        Item firstItem = makeItem("Отвертка", "Для откручивания", true, 1L);
+        itemService.addNewItem(user.getId(), firstItem);
+        Item secondItem = makeItem("Дрель", "Для вкручивания", true, 2L);
+        itemService.addNewItem(userSecond.getId(), secondItem);
+        Item thirdItem = makeItem("Еще отвертка", "Для вкручивания", true, 2L);
+        itemService.addNewItem(userSecond.getId(), thirdItem);
+        Item forthItem = makeItem("Еще отвертка", "Для вкручивания", true, 1L);
+        itemService.addNewItem(user.getId(), forthItem);
+        Booking firstBooking = makeBooking(start, end, firstItem.getId(), userSecond.getId(), Status.REJECTED);
+        Booking secondBooking = makeBooking(start, end, forthItem.getId(), userSecond.getId(), Status.REJECTED);
+        bookingRepository.save(firstBooking);
+        bookingRepository.save(secondBooking);
+        BookingDto firstBookingDto = makeBookingDto(firstBooking.getId(), start, end,
+                firstItem.getId(), userSecond.getId(), Status.WAITING, firstItem.getName());
+        BookingDto secondBookingDto = makeBookingDto(secondBooking.getId(), start, end, secondItem.getId(),
+                userSecond.getId(), Status.WAITING, secondItem.getName());
+        Collection<BookingDto> dtos = new ArrayList<>();
+        dtos.add(firstBookingDto);
+        dtos.add(secondBookingDto);
+        Collection<BookingDto> result = bookingService.getBookingsByOwner(user.getId(),
+                State.REJECTED, 0, 10);
+        assertEquals(dtos.stream().collect(Collectors.toList()).get(0).getId(),
+                result.stream().collect(Collectors.toList()).get(0).getId());
+        assertEquals(dtos.stream().collect(Collectors.toList()).get(1).getId(),
+                result.stream().collect(Collectors.toList()).get(1).getId());
     }
 
     private Booking makeBooking(LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId,

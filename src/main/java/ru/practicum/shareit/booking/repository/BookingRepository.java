@@ -4,7 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.item.Item;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -15,7 +17,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findBookingByBookerIdAndStartIsAfter(Long bookerId, LocalDateTime start,
                                                        Pageable pageable);
 
-    Page<Booking> findBookingByBookerIdAndEndIsAfter(Long bookerId, LocalDateTime end, Pageable pageable);
+    @Query("select b from Booking as b  " +
+            "where (b.bookerId = ?1 and b.start <= current_time and b.end > current_time) order by b.start desc")
+    Page<Booking> findBookingByBookerIdAndCurrent(Long userId, Pageable pageable);
 
     Page<Booking> findBookingByBookerId(Long bookerId, Pageable pageable);
 

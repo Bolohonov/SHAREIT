@@ -28,7 +28,6 @@ import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -109,9 +108,35 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void testCreateBookingStartDateIsIncorrect() {
+    void testCreateBookingStartDateIsBeforeNow() {
         LocalDateTime start = LocalDateTime.now().minusDays(2);
         LocalDateTime end = LocalDateTime.now().plusDays(4);
+        User userOwner = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        User userBooker = makeUser(2L, "Pasha", "pasha@yandex.ru");
+        Item item = makeItem(1L, "Отвертка", "Для откручивания",
+                true, userOwner.getId());
+        Booking booking = makeBooking(1L, start, end, item.getId(),
+                userBooker.getId(), Status.WAITING);
+        Booking bookingNext = makeBooking(2L, start.plusWeeks(5), end.plusWeeks(6),
+                item.getId(), userBooker.getId(), Status.WAITING);
+
+        ItemDtoWithBooking itemDto = makeItemDtoWithBooking(1L, "Отвертка", "Для откручивания",
+                true, null, new ItemDtoWithBooking.Booking(booking.getId(), userBooker.getId()),
+                new ItemDtoWithBooking.Booking(bookingNext.getId(), userBooker.getId()), Collections.emptyList());
+        Mockito
+                .when(userService.getUserById(anyLong()))
+                .thenReturn(Optional.ofNullable(userBooker));
+        Mockito
+                .when(itemService.findItemById(anyLong(), anyLong()))
+                .thenReturn(Optional.ofNullable(itemDto));
+        assertThrows(ResponseStatusException.class, () ->
+                getBookingService().addNew(2L, booking));
+    }
+
+    @Test
+    void testCreateBookingStartDateIsAfterEnd() {
+        LocalDateTime start = LocalDateTime.now().plusDays(2);
+        LocalDateTime end = LocalDateTime.now().minusDays(4);
         User userOwner = makeUser(1L, "Ivan", "ivan@yandex.ru");
         User userBooker = makeUser(2L, "Pasha", "pasha@yandex.ru");
         Item item = makeItem(1L, "Отвертка", "Для откручивания",
@@ -409,8 +434,7 @@ class BookingServiceImplTest {
                 .when(userService.getUserById(anyLong()))
                 .thenReturn(Optional.of(userBooker));
         Mockito
-                .when(bookingRepository.findBookingByBookerIdAndEndIsAfter(userBooker.getId(),
-                        LocalDateTime.now(minuteTickingClock),
+                .when(bookingRepository.findBookingByBookerIdAndCurrent(userBooker.getId(),
                         pageRequest))
                 .thenReturn(bookings);
         Mockito

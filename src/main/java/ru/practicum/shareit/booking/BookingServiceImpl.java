@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -110,8 +111,8 @@ public class BookingServiceImpl implements BookingService {
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findBookingByBookerIdAndEndIsAfter(userId,
-                        LocalDateTime.now(minuteTickingClock), pageRequest);
+                bookings = bookingRepository.findBookingByBookerIdAndCurrent(userId,
+                        pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case PAST:
@@ -149,7 +150,7 @@ public class BookingServiceImpl implements BookingService {
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
                 Sort.by("id").ascending());
-        Predicate function;
+        Predicate<Booking> function;
         if (itemsOfUser.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST);
         }
@@ -159,18 +160,24 @@ public class BookingServiceImpl implements BookingService {
         }
         switch (state) {
             case ALL:
-                bookingsDto = this.filterBookingsAndSortByTime(bookings, null, userId);
+                bookingsDto = bookings.stream()
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .map(b -> bookingMapper.toBookingDto(b,
+                            itemService.findItemById(b.getItemId(), userId).get().getName()))
+                    .collect(Collectors.toList());
                 break;
             case CURRENT:
-                function = (Predicate<Booking>) b -> b.getEnd().isAfter(LocalDateTime.now());
+                function = (b -> ((b.getStart().isBefore(LocalDateTime.now())
+                        || b.getStart() == LocalDateTime.now()) &&
+                        b.getEnd().isAfter(LocalDateTime.now())));
                 bookingsDto = this.filterBookingsAndSortByTime(bookings, function, userId);
                 break;
             case PAST:
-                function = (Predicate<Booking>) b -> b.getEnd().isBefore(LocalDateTime.now());
-                bookingsDto = this.filterBookingsSortByStart(bookings, userId);
+                function = b -> b.getEnd().isBefore(LocalDateTime.now());
+                bookingsDto = this.filterBookingsAndSortByTime(bookings, function, userId);
                 break;
             case FUTURE:
-                function = (Predicate<Booking>) b -> b.getStart().isAfter(LocalDateTime.now());
+                function = b -> b.getStart().isAfter(LocalDateTime.now());
                 bookingsDto = this.filterBookingsAndSortByTime(bookings, function, userId);
                 break;
             case WAITING:
@@ -216,25 +223,14 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
-    private Collection<BookingDto> filterBookingsSortByStart(Collection<Booking> bookings,
-                                                                     Long userId) {
-        return bookings
-                .stream()
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
-                .map(b -> bookingMapper.toBookingDto(b,
-                        itemService.findItemById(b.getItemId(), userId).get().getName()))
-                .collect(Collectors.toList());
-    }
-
     private Collection<BookingDto> filterBookingsAndSortByTime(Collection<Booking> bookings,
-                                                               Predicate func, Long userId) {
-        return bookings
+                                                               Predicate<Booking> func, Long userId) {
+        List<Booking> bookingList = bookings
                 .stream()
-                .filter((b) -> b.getEnd().isAfter(LocalDateTime.now()))
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
-                .map(b -> bookingMapper.toBookingDto(b,
-                        itemService.findItemById(b.getItemId(), userId).get().getName()))
-                .collect(Collectors.toList());
+                .filter(func)
+                .collect(Collectors.toList());;
+        return bookingMapper.toBookingDto(bookingList, userId);
     }
 
     private void checkUser(Long userId) {
