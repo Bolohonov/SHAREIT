@@ -20,7 +20,7 @@ public class ItemRequestController {
     private final RequestService requestService;
 
     @PostMapping
-    @ResponseStatus(CREATED)
+    @ResponseStatus(OK)
     public ItemRequestDto createNewRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
                                            @Valid @RequestBody ItemRequest request) {
         return requestService.addNewRequest(userId, request);

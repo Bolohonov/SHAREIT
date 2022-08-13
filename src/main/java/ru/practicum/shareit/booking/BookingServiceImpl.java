@@ -116,7 +116,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case PAST:
                 bookings = bookingRepository.findBookingByBookerIdAndEndIsBefore(userId,
-                        LocalDateTime.now(minuteTickingClock), pageRequest);
+                        LocalDateTime.now(), pageRequest);
                 bookingsDto = bookingMapper.toBookingDto(bookings, userId);
                 break;
             case FUTURE:
