@@ -32,7 +32,7 @@ public class BookingMapper {
         return dtos;
     }
 
-    public Collection<BookingDto> toBookingDto(Collection <Booking> bookings, Long userId) {
+    public Collection<BookingDto> toBookingDto(Collection<Booking> bookings, Long userId) {
         Collection<BookingDto> dtos = new ArrayList<>();
         for (Booking booking : bookings) {
             dtos.add(this.toBookingDto(booking, itemService.findItemById(booking.getItemId(), userId).get().getName()));

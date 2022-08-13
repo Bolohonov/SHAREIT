@@ -183,6 +183,7 @@ class BookingServiceImplIntegrationTest {
         assertEquals(dtos.stream().collect(Collectors.toList()).get(1).getId(),
                 result.stream().collect(Collectors.toList()).get(1).getId());
     }
+
     @Test
     @Transactional
     void getBookingsByOwnerStateALL() {

@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -161,10 +160,10 @@ public class BookingServiceImpl implements BookingService {
         switch (state) {
             case ALL:
                 bookingsDto = bookings.stream()
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .map(b -> bookingMapper.toBookingDto(b,
-                            itemService.findItemById(b.getItemId(), userId).get().getName()))
-                    .collect(Collectors.toList());
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
+                        .map(b -> bookingMapper.toBookingDto(b,
+                                itemService.findItemById(b.getItemId(), userId).get().getName()))
+                        .collect(Collectors.toList());
                 break;
             case CURRENT:
                 function = (b -> ((b.getStart().isBefore(LocalDateTime.now())
@@ -229,7 +228,8 @@ public class BookingServiceImpl implements BookingService {
                 .stream()
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .filter(func)
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
+        ;
         return bookingMapper.toBookingDto(bookingList, userId);
     }
 
