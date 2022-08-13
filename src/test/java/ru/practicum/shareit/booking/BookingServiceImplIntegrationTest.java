@@ -78,27 +78,27 @@ class BookingServiceImplIntegrationTest {
     private Booking makeBooking(LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId,
                                 Status status) {
         Booking booking = new Booking();
-        ReflectionTestUtils.setField(booking, "start", start);
-        ReflectionTestUtils.setField(booking, "end", end);
-        ReflectionTestUtils.setField(booking, "itemId", itemId);
-        ReflectionTestUtils.setField(booking, "bookerId", bookerId);
-        ReflectionTestUtils.setField(booking, "status", status);
+        booking.setStart(start);
+        booking.setEnd(end);
+        booking.setItemId(itemId);
+        booking.setBookerId(bookerId);
+        booking.setStatus(status);
         return booking;
     }
 
     private User makeUser(String name, String email) {
         User user = new User();
-        ReflectionTestUtils.setField(user, "name", name);
-        ReflectionTestUtils.setField(user, "email", email);
+        user.setName(name);
+        user.setEmail(email);
         return user;
     }
 
     private Item makeItem(String name, String description, Boolean available, Long ownerId) {
         Item item = new Item();
-        ReflectionTestUtils.setField(item, "name", name);
-        ReflectionTestUtils.setField(item, "description", description);
-        ReflectionTestUtils.setField(item, "available", available);
-        ReflectionTestUtils.setField(item, "ownerId", ownerId);
+        item.setName(name);
+        item.setDescription(description);
+        item.setAvailable(available);
+        item.setOwnerId(ownerId);
         return item;
     }
 }

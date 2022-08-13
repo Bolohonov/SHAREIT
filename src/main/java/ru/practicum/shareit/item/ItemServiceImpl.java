@@ -106,6 +106,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId) {
+        checkUser(userId);
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             throw new ItemNotFoundException("Вещь не найдена");
         });

@@ -59,25 +59,25 @@ class RequestServiceImplIntegrationTest {
 
     private User makeUser(String name, String email) {
         User user = new User();
-        ReflectionTestUtils.setField(user, "name", name);
-        ReflectionTestUtils.setField(user, "email", email);
+        user.setName(name);
+        user.setEmail(email);
         return user;
     }
 
     private Item makeItem(String name, String description, Boolean available, Long ownerId) {
         Item item = new Item();
-        ReflectionTestUtils.setField(item, "name", name);
-        ReflectionTestUtils.setField(item, "description", description);
-        ReflectionTestUtils.setField(item, "available", available);
-        ReflectionTestUtils.setField(item, "ownerId", ownerId);
+        item.setName(name);
+        item.setDescription(description);
+        item.setAvailable(available);
+        item.setOwnerId(ownerId);
         return item;
     }
 
     private ItemRequest makeItemRequest(String description, Long requesterId, LocalDateTime created) {
         ItemRequest itemRequest = new ItemRequest();
-        ReflectionTestUtils.setField(itemRequest, "description", description);
-        ReflectionTestUtils.setField(itemRequest, "requesterId", requesterId);
-        ReflectionTestUtils.setField(itemRequest, "created", created);
+        itemRequest.setDescription(description);
+        itemRequest.setRequesterId(requesterId);
+        itemRequest.setCreated(created);
         return itemRequest;
     }
 }

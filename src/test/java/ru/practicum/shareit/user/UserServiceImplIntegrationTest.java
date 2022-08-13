@@ -39,8 +39,8 @@ class UserServiceImplIntegrationTest {
 
     private User makeUser(String name, String email) {
         User user = new User();
-        ReflectionTestUtils.setField(user, "name", name);
-        ReflectionTestUtils.setField(user, "email", email);
+        user.setName(name);
+        user.setEmail(email);
         return user;
     }
 }
