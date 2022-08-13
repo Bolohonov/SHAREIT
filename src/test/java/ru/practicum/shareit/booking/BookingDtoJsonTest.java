@@ -19,18 +19,25 @@ public class BookingDtoJsonTest {
 
     @Test
     void testBookingDto() throws Exception {
+        BookingDto.Item item = new BookingDto.Item(1L, "Отвертка");
+        BookingDto.Booker booker = new BookingDto.Booker(1L);
         BookingDto bookingDto = new BookingDto(
                 1L,
                 LocalDateTime.of(2022, 8, 10, 10, 10),
                 LocalDateTime.of(2022, 8, 11, 10, 10),
-                null,
-                null,
+                item,
+                booker,
                 Status.WAITING
         );
-
         JsonContent<BookingDto> result = json.write(bookingDto);
         assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo("2022-08-10T10:10:00");
         assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo("2022-08-11T10:10:00");
         assertThat(result).extractingJsonPathStringValue("$.status").isEqualTo("WAITING");
+        assertThat(result).extractingJsonPathValue("$.item", "id", "name")
+                .extracting("id").isEqualTo(1);
+        assertThat(result).extractingJsonPathValue("$.item", "id", "name")
+                .extracting("name").isEqualTo("Отвертка");
+        assertThat(result).extractingJsonPathValue("$.booker", "id")
+                .extracting("id").isEqualTo(1);
     }
 }

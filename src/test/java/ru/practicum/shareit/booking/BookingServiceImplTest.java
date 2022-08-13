@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.exceptions.AccessToBookingException;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 import ru.practicum.shareit.item.Item;
@@ -187,6 +188,35 @@ class BookingServiceImplTest {
         assertEquals(result.getEnd(), bookingDto.getEnd());
         assertEquals(result.getStatus(), bookingDto.getStatus());
         assertEquals(result.getBooker().getId(), bookingDto.getBooker().getId());
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetBookingByIdAccessToBookingException() {
+        LocalDateTime start = LocalDateTime.now().plusDays(2);
+        LocalDateTime end = LocalDateTime.now().plusDays(4);
+        User userOwner = makeUser(1L, "Ivan", "ivan@yandex.ru");
+        User userBooker = makeUser(2L, "Pasha", "pasha@yandex.ru");
+        User userWrong = makeUser(3L, "Sasha", "sasha@yandex.ru");
+        Item item = makeItem(1L, "Отвертка", "Для откручивания",
+                true, userOwner.getId());
+        Booking booking = makeBooking(1L, start, end, item.getId(),
+                userBooker.getId(), Status.WAITING);
+        Booking bookingNext = makeBooking(2L, start.plusWeeks(5), end.plusWeeks(6),
+                item.getId(), userBooker.getId(), Status.WAITING);
+        BookingDto bookingDto = makeBookingDto(booking.getId(), booking.getStart(), booking.getEnd(), booking.getItemId(),
+                booking.getBookerId(), booking.getStatus(), item.getName());
+        ItemDtoWithBooking itemDto = makeItemDtoWithBooking(1L, "Отвертка", "Для откручивания",
+                true, null, new ItemDtoWithBooking.Booking(booking.getId(), userBooker.getId()),
+                new ItemDtoWithBooking.Booking(bookingNext.getId(), userBooker.getId()), Collections.emptyList());
+        Mockito
+                .when(userService.getUserById(anyLong()))
+                .thenReturn(Optional.of(userBooker));
+        Mockito
+                .when(bookingRepository.findById(anyLong()))
+                .thenReturn(Optional.of(booking));
+        assertThrows(AccessToBookingException.class, () ->
+                getBookingService().findBookingById(userWrong.getId(), booking.getId()).get());
     }
 
     @Test
