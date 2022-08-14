@@ -39,17 +39,17 @@ import static org.mockito.Mockito.times;
 @ExtendWith(MockitoExtension.class)
 class ItemServiceImplTest {
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Mock
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Mock
-    UserService userService;
+    private UserService userService;
     @Mock
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
     @Mock
-    ItemMapper itemMapper;
+    private ItemMapper itemMapper;
     @Mock
-    CommentMapper commentMapper;
+    private CommentMapper commentMapper;
 
     @Test
     @SneakyThrows

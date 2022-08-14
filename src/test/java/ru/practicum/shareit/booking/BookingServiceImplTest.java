@@ -37,13 +37,13 @@ import static org.mockito.ArgumentMatchers.*;
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Mock
-    BookingMapper bookingMapper;
+    private BookingMapper bookingMapper;
     @Mock
-    UserService userService;
+    private UserService userService;
     @Mock
-    ItemService itemService;
+    private ItemService itemService;
 
     @Test
     @SneakyThrows

@@ -30,13 +30,13 @@ import static org.mockito.ArgumentMatchers.anyLong;
 @ExtendWith(MockitoExtension.class)
 class RequestServiceImplTest {
     @Mock
-    ItemRequestRepository itemRequestRepository;
+    private  ItemRequestRepository itemRequestRepository;
     @Mock
-    ItemRequestMapper itemRequestMapper;
+    private ItemRequestMapper itemRequestMapper;
     @Mock
-    UserService userService;
+    private UserService userService;
     @Mock
-    ItemService itemService;
+    private ItemService itemService;
 
     @Test
     void testAddNewRequestSuccess() {
