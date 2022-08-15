@@ -25,7 +25,7 @@ public class ItemJPATest {
     private ItemRepository itemRepository;
 
     @Test
-    public void searchItemByText() {
+    void searchItemByText() {
         User firstUser = makeUser("Ivan", "ivan@yandex.ru");
         userRepository.save(firstUser);
         User secondUser = makeUser("Pasha", "pasha@yandex.ru");

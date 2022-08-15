@@ -144,7 +144,7 @@ public class BookingServiceImpl implements BookingService {
         checkUser(userId);
         checkParams(from, size);
         Collection<ItemDtoWithBooking> itemsOfUser = itemService.getAllUserItems(userId);
-        Iterable<Booking> bookingsPag;
+        Iterable<Booking> bookingPage;
         Collection<Booking> bookings = new ArrayList<>();
         Collection<BookingDto> bookingsDto = new ArrayList<>();
         PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
@@ -154,8 +154,8 @@ public class BookingServiceImpl implements BookingService {
             throw new ResponseStatusException(BAD_REQUEST);
         }
         for (ItemDtoWithBooking itemDto : itemsOfUser) {
-            bookingsPag = bookingRepository.findBookingByItemId(itemDto.getId(), pageRequest);
-            bookingsPag.forEach(bookings::add);
+            bookingPage = bookingRepository.findBookingByItemId(itemDto.getId(), pageRequest);
+            bookingPage.forEach(bookings::add);
         }
         switch (state) {
             case ALL:
