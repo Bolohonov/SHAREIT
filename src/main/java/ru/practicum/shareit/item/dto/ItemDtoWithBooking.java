@@ -47,7 +47,7 @@ public class ItemDtoWithBooking {
     @ToString
     @Getter
     @Setter
-    static class Booking implements Serializable {
+    public static class Booking implements Serializable {
         private Long id;
         private Long bookerId;
     }

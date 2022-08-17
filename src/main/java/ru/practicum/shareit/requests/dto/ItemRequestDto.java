@@ -1,11 +1,19 @@
 package ru.practicum.shareit.requests.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@Builder
 public class ItemRequestDto {
+    /**
+     * уникальный идентификатор запроса
+     */
+    private Long id;
     /**
      * уникальный идентификатор запроса
      */
@@ -14,9 +22,4 @@ public class ItemRequestDto {
      * дата и время создания запроса
      */
     private LocalDateTime created;
-
-    public ItemRequestDto(String description, LocalDateTime created) {
-        this.description = description;
-        this.created = created;
-    }
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import ru.practicum.shareit.comment.dto.CommentMapper;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
+import ru.practicum.shareit.item.dto.ItemDtoWithoutComments;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.AccessToItemException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
@@ -104,6 +106,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId) {
+        checkUser(userId);
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             throw new ItemNotFoundException("Вещь не найдена");
         });
@@ -116,7 +119,24 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public Collection<ItemDtoWithBooking> getUserItems(Long userId) {
+    public Collection<ItemDtoWithBooking> getUserItems(Long userId, Integer from, Integer size) {
+        checkUser(userId);
+        checkParams(from, size);
+        Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
+                Sort.by("id").ascending());
+        Iterable<Item> items = itemRepository.findByOwnerId(userId, pageRequest);
+        for (Item i : items) {
+            itemsDto.add(itemMapper.toItemDtoWithBooking(i,
+                    this.getLastAndNextBookingByItemIdAndUserId(i.getId(), userId)[0],
+                    this.getLastAndNextBookingByItemIdAndUserId(i.getId(), userId)[1],
+                    commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
+        }
+        return itemsDto;
+    }
+
+    @Override
+    public Collection<ItemDtoWithBooking> getAllUserItems(Long userId) {
         Collection<ItemDtoWithBooking> itemsDto = new ArrayList<>();
         for (Item i : itemRepository.findByOwnerId(userId)) {
             itemsDto.add(itemMapper.toItemDtoWithBooking(i,
@@ -129,11 +149,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public Collection<ItemDto> search(Long userId, String text) {
+    public Collection<ItemDto> search(Long userId, String text, Integer from, Integer size) {
         Collection<ItemDto> itemsDto = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(this.getPageNumber(from, size), size,
+                Sort.by("id").ascending());
         if (!text.isEmpty()) {
             for (Item i : itemRepository
-                    .search(userId, text)) {
+                    .search(userId, text, pageRequest)) {
                 itemsDto.add(itemMapper.toItemDto(i,
                         commentRepository.findCommentsByItemIdOrderByCreatedDesc(i.getId())));
             }
@@ -182,6 +204,13 @@ public class ItemServiceImpl implements ItemService {
         ).getOwnerId().equals(userId);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Collection<ItemDtoWithoutComments> findItemsByRequest(Long requestId) {
+        Collection<Item> items = itemRepository.findByRequestId(requestId);
+        return itemMapper.toItemDtoWithoutComments(items);
+    }
+
     private Optional<Booking>[] getLastAndNextBookingByItemIdAndUserId(Long itemId, Long userId) {
         Collection<Booking> bookings = bookingRepository.findBookingByItemId(itemId);
         Optional<Booking> last = Optional.empty();
@@ -206,5 +235,21 @@ public class ItemServiceImpl implements ItemService {
             }
         }
         return new Optional[]{last, next};
+    }
+
+    private void checkUser(Long userId) {
+        if (!userService.getUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+    }
+
+    private void checkParams(Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
+    }
+
+    private Integer getPageNumber(Integer from, Integer size) {
+        return from % size;
     }
 }

@@ -2,13 +2,10 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.comment.Comment;
-
-import java.util.Collection;
 
 @Data
 @AllArgsConstructor
-public class ItemDto {
+public class ItemDtoWithoutComments {
     /**
      * уникальный идентификатор вещи
      */
@@ -30,9 +27,4 @@ public class ItemDto {
      * то в этом поле будет храниться ссылка на соответствующий запрос
      */
     private Long requestId;
-
-    /**
-     * комментарии по использования вещи
-     */
-    private Collection<Comment> comments;
 }
