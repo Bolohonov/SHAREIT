@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.dto.ItemRequestDtoWithResponses;
 
-import javax.validation.Valid;
 import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.*;
@@ -22,7 +21,7 @@ public class ItemRequestController {
     @PostMapping
     @ResponseStatus(OK)
     public ItemRequestDto createNewRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                           @Valid @RequestBody ItemRequest request) {
+                                           @RequestBody ItemRequest request) {
         return requestService.addNewRequest(userId, request);
     }
 

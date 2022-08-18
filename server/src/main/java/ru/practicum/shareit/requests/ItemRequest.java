@@ -6,7 +6,6 @@ import lombok.ToString;
 import org.springframework.stereotype.Indexed;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**
@@ -28,7 +27,6 @@ public class ItemRequest {
     /**
      * текст запроса, содержащий описание требуемой вещи
      */
-    @NotBlank
     @Column(name = "description")
     private String description;
     /**
