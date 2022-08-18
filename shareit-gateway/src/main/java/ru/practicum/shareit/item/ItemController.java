@@ -28,14 +28,14 @@ public class ItemController {
     @PostMapping
     @ResponseStatus(CREATED)
     public ResponseEntity<Object> saveNewItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                              @Valid @RequestBody ItemDto itemDto) {
+                                              @RequestBody @Validated ItemDto itemDto) {
         return itemClient.addNewItem(userId, itemDto);
     }
 
     @PutMapping
     @ResponseStatus(OK)
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                              @Valid @RequestBody ItemDto itemDto) {
+                              @RequestBody @Validated ItemDto itemDto) {
         return itemClient.updateItem(userId, itemDto);
     }
 
@@ -85,7 +85,7 @@ public class ItemController {
     @ResponseStatus(OK)
     public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @PathVariable Long itemId,
-                                                @Valid @RequestBody CommentDto comment) {
+                                                @RequestBody @Validated CommentDto comment) {
         return itemClient.addComment(userId, itemId, comment);
     }
 }

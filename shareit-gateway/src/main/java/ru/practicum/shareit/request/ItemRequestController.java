@@ -25,7 +25,7 @@ public class ItemRequestController {
     @PostMapping
     @ResponseStatus(OK)
     public ResponseEntity<Object> createNewRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                   @Valid @RequestBody ItemRequestDto request) {
+                                                   @RequestBody @Validated ItemRequestDto request) {
         return requestClient.addNewRequest(userId, request);
     }
 

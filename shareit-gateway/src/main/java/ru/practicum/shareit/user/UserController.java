@@ -30,7 +30,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public ResponseEntity<Object> saveNewUser(@Valid @RequestBody UserDto user) {
+    public ResponseEntity<Object> saveNewUser(@RequestBody @Validated UserDto user) {
         log.info("Create new user");
         return userClient.saveUser(user);
     }
