@@ -1,3 +1,3 @@
 FROM eclipse-temurin:11
-COPY target/*-jar-with-dependencies.jar gateway.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+COPY target/*-jar-with-dependencies.jar shareit-gateway.jar
+ENTRYPOINT ["java","-jar","/shareit-gateway.jar"]
