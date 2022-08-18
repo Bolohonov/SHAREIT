@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.*;
@@ -24,14 +23,8 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public User saveNewUser(@Valid @RequestBody User user) {
+    public User saveNewUser(@RequestBody User user) {
         return userService.saveUser(user);
-    }
-
-    @PutMapping
-    @ResponseStatus(OK)
-    public User updateUser(@RequestBody User user) {
-        return userService.updateUser(user.getId(), user).get();
     }
 
     @PatchMapping("/{id}")

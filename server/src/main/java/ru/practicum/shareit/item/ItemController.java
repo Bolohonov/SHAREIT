@@ -8,7 +8,6 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 
-import javax.validation.Valid;
 import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.*;
@@ -23,14 +22,14 @@ public class ItemController {
     @PostMapping
     @ResponseStatus(CREATED)
     public ItemDto saveNewItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                               @Valid @RequestBody Item item) {
+                               @RequestBody Item item) {
         return itemService.addNewItem(userId, item);
     }
 
     @PutMapping
     @ResponseStatus(OK)
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                              @Valid @RequestBody Item item) {
+                              @RequestBody Item item) {
         return itemService.updateItem(userId, item).get();
     }
 
@@ -78,7 +77,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     @ResponseStatus(OK)
     public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @Valid @RequestBody Comment comment,
+                                    @RequestBody Comment comment,
                                     @PathVariable Long itemId) {
         return itemService.addComment(userId, itemId, comment);
     }

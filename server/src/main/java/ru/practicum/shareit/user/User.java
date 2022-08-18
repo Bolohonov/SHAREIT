@@ -3,8 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 
 /**
  * класс с описанием пользователя - User //
@@ -24,12 +22,9 @@ public class User {
     /**
      * имя или логин пользователя
      */
-    @NotBlank
     private String name;
     /**
      * адрес электронной почты
      */
-    @Email
-    @NotBlank
     private String email;
 }

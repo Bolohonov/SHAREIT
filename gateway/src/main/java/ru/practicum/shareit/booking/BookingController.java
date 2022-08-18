@@ -44,6 +44,7 @@ public class BookingController {
 	public ResponseEntity<Object> approveOrRejectBooking(@PathVariable Long bookingId,
 											 @RequestHeader("X-Sharer-User-Id") Long userId,
 											 @RequestParam Boolean approved) {
+		log.info("ApproveOrReject booking {} with status {}", bookingId, approved);
 		return bookingClient.approveOrRejectBooking(userId, bookingId, approved);
 	}
 
