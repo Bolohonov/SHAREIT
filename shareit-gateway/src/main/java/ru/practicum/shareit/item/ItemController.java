@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -35,7 +34,7 @@ public class ItemController {
     @PutMapping
     @ResponseStatus(OK)
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                              @RequestBody @Validated ItemDto itemDto) {
+                                             @RequestBody @Validated ItemDto itemDto) {
         return itemClient.updateItem(userId, itemDto);
     }
 
@@ -50,34 +49,34 @@ public class ItemController {
     @GetMapping("/{itemId}")
     @ResponseStatus(OK)
     public ResponseEntity<Object> findItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                           @PathVariable Long itemId) {
+                                               @PathVariable Long itemId) {
         return itemClient.findItemById(userId, itemId);
     }
 
     @GetMapping
     @ResponseStatus(OK)
     public ResponseEntity<Object> findAllItemsOfUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                             @PositiveOrZero @RequestParam(name = "from",
-                                                                     defaultValue = "0") Integer from,
-                                                             @Positive @RequestParam(name = "size",
-                                                                     defaultValue = "10") Integer size) {
+                                                     @PositiveOrZero @RequestParam(name = "from",
+                                                             defaultValue = "0") Integer from,
+                                                     @Positive @RequestParam(name = "size",
+                                                             defaultValue = "10") Integer size) {
         return itemClient.getUserItems(userId, from, size);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> search(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @NotBlank @RequestParam(value = "text") String text,
-                                      @PositiveOrZero @RequestParam(name = "from",
-                                              defaultValue = "0") Integer from,
-                                      @Positive @RequestParam(name = "size",
-                                              defaultValue = "10") Integer size) {
+                                         @NotBlank @RequestParam(value = "text") String text,
+                                         @PositiveOrZero @RequestParam(name = "from",
+                                                 defaultValue = "0") Integer from,
+                                         @Positive @RequestParam(name = "size",
+                                                 defaultValue = "10") Integer size) {
         return itemClient.search(userId, text, from, size);
     }
 
     @DeleteMapping("/{itemId}")
     @ResponseStatus(NO_CONTENT)
     public ResponseEntity<Object> deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                           @PathVariable Long itemId) {
+                                             @PathVariable Long itemId) {
         return itemClient.deleteItem(userId, itemId);
     }
 

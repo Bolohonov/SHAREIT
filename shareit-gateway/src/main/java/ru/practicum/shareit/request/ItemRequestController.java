@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -32,24 +31,24 @@ public class ItemRequestController {
     @GetMapping("/all")
     @ResponseStatus(OK)
     public ResponseEntity<Object> findAllRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @PositiveOrZero @RequestParam(name = "from",
-                                                              defaultValue = "0") Integer from,
-                                                      @Positive @RequestParam(name = "size",
-                                                              defaultValue = "10") Integer size) {
+                                                  @PositiveOrZero @RequestParam(name = "from",
+                                                          defaultValue = "0") Integer from,
+                                                  @Positive @RequestParam(name = "size",
+                                                          defaultValue = "10") Integer size) {
         return requestClient.getRequests(userId, from, size);
     }
 
     @GetMapping
     @ResponseStatus(OK)
     public ResponseEntity<Object> findAllRequestsOfUser(@RequestHeader("X-Sharer-User-Id")
-                                                                         Long userId) {
+                                                        Long userId) {
         return requestClient.getRequestsByUser(userId);
     }
 
     @GetMapping("/{requestId}")
     @ResponseStatus(OK)
     public ResponseEntity<Object> findRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                       @PathVariable Long requestId) {
+                                                  @PathVariable Long requestId) {
         return requestClient.getRequestById(userId, requestId);
     }
 }

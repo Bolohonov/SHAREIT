@@ -8,8 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
-
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -38,7 +36,7 @@ public class UserController {
     @PatchMapping("/{userId}")
     @ResponseStatus(OK)
     public ResponseEntity<Object> updateUser(@PathVariable Long userId,
-            @RequestBody UserDto user) {
+                                             @RequestBody UserDto user) {
         log.info("Update user");
         return userClient.updateUser(userId, user);
     }

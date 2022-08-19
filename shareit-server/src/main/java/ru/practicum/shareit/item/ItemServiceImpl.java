@@ -79,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
         }
         try {
             name = ofNullable(newItem.getName());
-            if(name.isPresent()) {
+            if (name.isPresent()) {
                 item.setName(name.get());
             }
         } catch (NullPointerException e) {
@@ -87,7 +87,7 @@ public class ItemServiceImpl implements ItemService {
         }
         try {
             description = ofNullable(newItem.getDescription());
-            if(description.isPresent()) {
+            if (description.isPresent()) {
                 item.setDescription(description.get());
             }
         } catch (NullPointerException e) {
@@ -95,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
         }
         try {
             available = ofNullable(newItem.getAvailable());
-            if(available.isPresent()) {
+            if (available.isPresent()) {
                 item.setAvailable(available.get());
             }
         } catch (NullPointerException e) {
