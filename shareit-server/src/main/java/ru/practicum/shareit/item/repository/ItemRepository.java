@@ -19,6 +19,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select i from Item as i " +
             "where (upper(i.name) like upper(concat('%', ?2, '%')) " +
             " or upper(i.description) like upper(concat('%', ?2, '%'))) " +
-            " and (i.ownerId = ?1 or i.available = TRUE) ")
+            " and (i.ownerId = ?1 or i.available = true) ")
     Page<Item> search(Long userId, String text, Pageable pageable);
 }

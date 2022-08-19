@@ -27,13 +27,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public User saveUser(User user) {
         return userRepository.save(user);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<User> getUserById(Long userId) {
         if (userRepository.findById(userId).isPresent()) {

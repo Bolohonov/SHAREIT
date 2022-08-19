@@ -43,7 +43,7 @@ public class ItemController {
     @ResponseStatus(OK)
     public ResponseEntity<Object> patchedItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @PathVariable Long itemId,
-                                              @Valid @RequestBody ItemDto itemDto) {
+                                              @RequestBody ItemDto itemDto) {
         return itemClient.patchedItem(userId, itemId, itemDto);
     }
 

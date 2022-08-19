@@ -14,7 +14,7 @@ public interface ItemService {
 
     Optional<ItemDto> updateItem(Long userId, Item item);
 
-    Optional<ItemDto> patchedItem(Long userId, Long itemId, String item);
+    Optional<ItemDto> patchedItem(Long userId, Long itemId, Item item);
 
     Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId);
 

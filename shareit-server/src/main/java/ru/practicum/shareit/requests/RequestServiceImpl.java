@@ -33,7 +33,6 @@ public class RequestServiceImpl implements RequestService {
     private final ItemService itemService;
 
     @Override
-    @Transactional(readOnly = true)
     public ItemRequestDto addNewRequest(Long userId, ItemRequest request) {
         checkUser(userId);
         request.setRequesterId(userId);
@@ -42,7 +41,6 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Collection<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) {
         checkUser(userId);
         checkParams(from, size);

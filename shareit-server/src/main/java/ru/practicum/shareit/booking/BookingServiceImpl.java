@@ -41,7 +41,6 @@ public class BookingServiceImpl implements BookingService {
 
     private static final Sort SORT_BY_START_DESC = Sort.by(Sort.Direction.DESC, "start");
 
-    @Transactional(readOnly = true)
     @Override
     public BookingDto addNew(Long userId, Booking booking) {
         validateBooking(userId, booking);
@@ -75,7 +74,6 @@ public class BookingServiceImpl implements BookingService {
                 itemService.findItemById(booking.getItemId(), userId).get().getName()));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<BookingDto> findBookingById(Long userId, Long bookingId) {
         checkUser(userId);
@@ -93,7 +91,6 @@ public class BookingServiceImpl implements BookingService {
                 itemService.findItemById(booking.getItemId(), userId).get().getName()));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Collection<BookingDto> getUserBookings(Long userId, State state, Integer from, Integer size) {
         checkUser(userId);
@@ -138,7 +135,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingsDto;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Collection<BookingDto> getBookingsByOwner(Long userId, State state, Integer from, Integer size) {
         checkUser(userId);

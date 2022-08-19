@@ -1,13 +1,10 @@
 package ru.practicum.shareit.item;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -43,7 +40,6 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    @Transactional(readOnly = true)
     @Override
     public ItemDto addNewItem(Long userId, Item item) {
         if (!userService.getUserById(userId).isPresent()) {
@@ -69,12 +65,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<ItemDto> patchedItem(Long userId, Long itemId, String json) {
+    public Optional<ItemDto> patchedItem(Long userId, Long itemId, Item newItem) {
+        checkUser(userId);
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
-                    throw new UserNotFoundException("Пользователь не найден");
+                    throw new ItemNotFoundException("Вещь не найдена");
                 }
         );
-        JsonObject obj = new Gson().fromJson(json, JsonObject.class);
         Optional<String> name;
         Optional<String> description;
         Optional<Boolean> available;
@@ -82,20 +78,26 @@ public class ItemServiceImpl implements ItemService {
             throw new AccessToItemException("Доступ запрещен!");
         }
         try {
-            name = ofNullable(obj.get("name").getAsString());
-            item.setName(name.get());
+            name = ofNullable(newItem.getName());
+            if(name.isPresent()) {
+                item.setName(name.get());
+            }
         } catch (NullPointerException e) {
             log.info("Часть полей полученного объекта пустые");
         }
         try {
-            description = ofNullable(obj.get("description").getAsString());
-            item.setDescription(description.get());
+            description = ofNullable(newItem.getDescription());
+            if(description.isPresent()) {
+                item.setDescription(description.get());
+            }
         } catch (NullPointerException e) {
             log.info("Часть полей полученного объекта пустые");
         }
         try {
-            available = ofNullable(obj.get("available").getAsBoolean());
-            item.setAvailable(available.get());
+            available = ofNullable(newItem.getAvailable());
+            if(available.isPresent()) {
+                item.setAvailable(available.get());
+            }
         } catch (NullPointerException e) {
             log.info("Часть полей полученного объекта пустые");
         }
@@ -103,7 +105,6 @@ public class ItemServiceImpl implements ItemService {
                 commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<ItemDtoWithBooking> findItemById(Long itemId, Long userId) {
         checkUser(userId);
@@ -117,7 +118,6 @@ public class ItemServiceImpl implements ItemService {
                 commentRepository.findCommentsByItemIdOrderByCreatedDesc(itemId)));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Collection<ItemDtoWithBooking> getUserItems(Long userId, Integer from, Integer size) {
         checkUser(userId);
@@ -147,7 +147,6 @@ public class ItemServiceImpl implements ItemService {
         return itemsDto;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Collection<ItemDto> search(Long userId, String text, Integer from, Integer size) {
         Collection<ItemDto> itemsDto = new ArrayList<>();
@@ -165,7 +164,6 @@ public class ItemServiceImpl implements ItemService {
         return itemsDto;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public CommentDto addComment(Long userId, Long itemId, Comment comment) {
         comment.setCreated(LocalDateTime.now());
@@ -195,7 +193,6 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public boolean checkOwner(Long userId, Long itemId) {
         return itemRepository.findById(itemId).orElseThrow(() -> {
@@ -204,7 +201,6 @@ public class ItemServiceImpl implements ItemService {
         ).getOwnerId().equals(userId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Collection<ItemDtoWithoutComments> findItemsByRequest(Long requestId) {
         Collection<Item> items = itemRepository.findByRequestId(requestId);

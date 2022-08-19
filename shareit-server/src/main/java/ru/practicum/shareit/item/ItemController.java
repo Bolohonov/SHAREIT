@@ -36,8 +36,8 @@ public class ItemController {
     @PatchMapping("{id}")
     @ResponseStatus(OK)
     public ItemDto patchedItem(@PathVariable Long id, @RequestHeader("X-Sharer-User-Id") Long userId,
-                               @RequestBody String json) {
-        return itemService.patchedItem(userId, id, json).get();
+                               @RequestBody Item item) {
+        return itemService.patchedItem(userId, id, item).get();
     }
 
     @GetMapping("/{id}")
